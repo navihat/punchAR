@@ -6,7 +6,7 @@ Expected layout (folder name = ground-truth label, must match MediaPipe gesture 
     Open_Palm/   ...
     None/        ...   (images with no hand / unknown gesture)
 
-Usage: python -m punchar.eval_dataset dataset/
+Usage: python -m tools.eval_dataset dataset/
 """
 import argparse
 import csv
@@ -16,8 +16,8 @@ from pathlib import Path
 
 import cv2
 
-from punchar.recognizer import GESTURES, create_recognizer, to_mp_image, top_gesture
-from punchar.report import RESULTS_DIR, build_report
+from punchar.recognizer.mediapipe_recognizer import GESTURES, create_recognizer, to_mp_image, top_gesture
+from punchar.metrics.report import RESULTS_DIR, build_report
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 

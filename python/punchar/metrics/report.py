@@ -1,9 +1,8 @@
 """Accuracy report: per-class precision/recall/F1 and confusion matrix."""
 import numpy as np
 
-from punchar.recognizer import GESTURES, ROOT_DIR
-
-RESULTS_DIR = ROOT_DIR / "results"
+from punchar.paths import RESULTS_DIR  # noqa: F401  (re-exported for tools)
+from punchar.recognizer.mediapipe_recognizer import GESTURES
 
 
 def build_report(gts, preds):

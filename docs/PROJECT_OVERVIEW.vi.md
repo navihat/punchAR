@@ -76,7 +76,7 @@
 - Có sẵn 21 điểm landmark mỗi tay (toạ độ ảnh + toạ độ 3D theo mét), có phân biệt tay trái/phải.
 - **Không có sẵn cử chỉ pinch hay xoay.** Hai cử chỉ này phải tự tính từ landmark (ví dụ khoảng cách đầu ngón cái và đầu ngón trỏ), hoặc train thêm bằng MediaPipe Model Maker.
 - Độ chính xác: mới thử 4 ảnh mẫu, **chưa đủ để kết luận**. Cần bộ dữ liệu riêng của nhóm (mục 8).
-- Công cụ test có sẵn trong repo: `punchar/live_test.py` (webcam, đo flicker/accuracy), `punchar/eval_dataset.py` (đánh giá trên thư mục ảnh).
+- Công cụ test có sẵn trong repo: `python/tools/live_test.py` (webcam, đo flicker/accuracy), `python/tools/eval_dataset.py` (đánh giá trên thư mục ảnh).
 
 **Câu hỏi thảo luận**
 - Thầy có yêu cầu cụ thể nào về phần "kỹ thuật hỗ trợ thời gian thực" không? Ví dụ phải tự tối ưu model, hay chỉ cần tối ưu pipeline?

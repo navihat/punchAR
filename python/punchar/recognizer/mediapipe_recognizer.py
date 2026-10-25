@@ -1,13 +1,11 @@
-"""Shared helpers: load MediaPipe Gesture Recognizer and draw results."""
-from pathlib import Path
-
+"""MediaPipe Gesture Recognizer: low-level helpers + Recognizer adapter."""
 import cv2
 import mediapipe as mp
 from mediapipe.tasks.python import BaseOptions
 from mediapipe.tasks.python import vision
 
-ROOT_DIR = Path(__file__).resolve().parent.parent
-MODEL_PATH = ROOT_DIR / "models" / "gesture_recognizer.task"
+from punchar.paths import MODEL_PATH
+from punchar.recognizer.base import FrameResult, HandResult, Recognizer
 
 # Canned gestures of the official MediaPipe model
 GESTURES = [
@@ -65,3 +63,37 @@ def draw_result(frame, result):
         y0 = max(min(p[1] for p in pts) - 10, 20)
         cv2.putText(frame, f"{handed}: {label} {score:.2f}", (x0, y0),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+
+
+class MediaPipeRecognizer(Recognizer):
+    """Baseline adapter. Expects frames already mirrored, so handedness is the player's."""
+
+    def __init__(self, num_hands=2, det_conf=0.5, presence_conf=0.5, track_conf=0.5):
+        self.params = (num_hands, det_conf, presence_conf, track_conf)
+        self._rec = None
+        self._last_ts = -1
+
+    def load(self):
+        self._rec = create_recognizer("video", *self.params)
+
+    def predict(self, image, frame_id, timestamp_ms):
+        # VIDEO mode requires strictly increasing timestamps
+        ts = max(timestamp_ms, self._last_ts + 1)
+        self._last_ts = ts
+        result = self._rec.recognize_for_video(to_mp_image(image), ts)
+        hands = []
+        for i, lms in enumerate(result.hand_landmarks):
+            shape, score = top_gesture(result, i)
+            # TODO: verify MediaPipe handedness convention on mirrored frames
+            hands.append(HandResult(
+                handedness=result.handedness[i][0].category_name,
+                shape=shape,
+                score=score,
+                landmarks=[(lm.x, lm.y, lm.z) for lm in lms],
+                world_landmarks=[(lm.x, lm.y, lm.z) for lm in result.hand_world_landmarks[i]],
+            ))
+        return FrameResult(frame_id, timestamp_ms, hands)
+
+    def close(self):
+        if self._rec:
+            self._rec.close()

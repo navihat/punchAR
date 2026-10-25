@@ -16,8 +16,8 @@ from datetime import datetime
 import cv2
 import numpy as np
 
-from punchar.recognizer import GESTURES, create_recognizer, draw_result, to_mp_image, top_gesture
-from punchar.report import RESULTS_DIR, build_report
+from punchar.recognizer.mediapipe_recognizer import GESTURES, create_recognizer, draw_result, to_mp_image, top_gesture
+from punchar.metrics.report import RESULTS_DIR, build_report
 
 
 class Stats:

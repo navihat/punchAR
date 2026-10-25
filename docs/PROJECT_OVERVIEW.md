@@ -56,7 +56,7 @@ Success criteria (numbers): **[TBD]**. Current draft: gesture accuracy ≥ 90%, 
 - Built-in static gestures: `Closed_Fist, Open_Palm, Pointing_Up, Thumb_Down, Thumb_Up, Victory, ILoveYou` (+ `None`).
 - **No dynamic gestures** (punches must be derived from landmarks over time).
 - Accuracy is **not yet validated** (only 4 sample images tested).
-- Existing tools in repo: `punchar/live_test.py` (webcam, flicker/accuracy), `punchar/eval_dataset.py` (folder of images), `punchar/recognizer.py`, `punchar/report.py`.
+- Existing tools in repo: `python/tools/live_test.py` (webcam, flicker/accuracy), `python/tools/eval_dataset.py` (folder of images), `python/punchar/` (pipeline skeleton, see README).
 
 ---
 
