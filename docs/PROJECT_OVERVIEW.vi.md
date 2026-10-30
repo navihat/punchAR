@@ -42,7 +42,7 @@
 | 20' | Game: luật chơi, màn chơi, tập cử chỉ (mục 6–7) | Bảng ánh xạ cử chỉ v1 |
 | 10' | Tiêu chí thành công + cách đo (mục 2, 8) | Con số mục tiêu |
 | 10' | Phân công + lộ trình + cách làm việc (mục 9–11) | Ai làm gì, hạn mốc đầu tiên |
-| 10' | Rủi ro + việc cần hỏi thầy / chị (mục 12) | Danh sách câu hỏi gửi đi |
+| 10' | Rủi ro + việc cần hỏi thầy (mục 12) | Danh sách câu hỏi gửi đi |
 
 ---
 
@@ -59,7 +59,7 @@
 | Ngoài phạm vi | Ứng dụng phục hồi chức năng / y tế |
 
 ### Tình hình hiện tại
-- Model nhận diện cử chỉ tay của chị ấy sẽ được giao sau. Chưa biết định dạng, đầu vào/đầu ra và tập cử chỉ.
+- Sẽ tích hợp một model nhận diện cử chỉ tay close source có sẵn. Chưa biết định dạng, đầu vào/đầu ra và tập cử chỉ.
 - Trong lúc chờ: dùng **open source**, đã chạy thử **MediaPipe Gesture Recognizer** (xem bên dưới).
 - Hệ thống phải thiết kế để **thay model mà không sửa code game**.
 
@@ -81,7 +81,7 @@
 **Câu hỏi thảo luận**
 - Thầy có yêu cầu cụ thể nào về phần "kỹ thuật hỗ trợ thời gian thực" không? Ví dụ phải tự tối ưu model, hay chỉ cần tối ưu pipeline?
 - Trọng tâm chấm điểm nằm ở game/AR hay ở inference? Điều này quyết định nhóm dồn công sức vào đâu.
-- Model của chị ấy so với MediaPipe: đề tài là thay thế, so sánh, hay kết hợp hai model?
+- Model close source so với MediaPipe: đề tài là thay thế, so sánh, hay kết hợp hai model?
 
 ---
 
@@ -197,7 +197,7 @@ Game tự quyết định cú đánh có trúng hình hay không (so `hand`, `ty
 - Landmark 21 điểm có đưa thẳng cho game không, hay game chỉ nhận event? Nếu vẽ bàn tay ảo trong AR thì game cần landmark.
 - Toạ độ đã lật gương hay chưa? Lật ở khâu nào? Nên chốt **một chỗ duy nhất**.
 - Khi không thấy tay, hoặc tay biến mất giữa lúc đang cầm khối, game xử lý thế nào?
-- Model của chị ấy có thể không trả landmark, chỉ trả nhãn cử chỉ. Khi đó con trỏ lấy vị trí từ đâu? Adapter có cần chạy kèm MediaPipe để lấy vị trí tay không?
+- Model close source có thể không trả landmark, chỉ trả nhãn cử chỉ. Khi đó con trỏ lấy vị trí từ đâu? Adapter có cần chạy kèm MediaPipe để lấy vị trí tay không?
 - Pinch và xoay tính ở **[2]** (coi như một "cử chỉ") hay ở **[3]** (luật trên landmark)?
 - Các module truyền dữ liệu cho nhau thế nào: gọi hàm, queue giữa các thread, hay socket?
 
@@ -313,14 +313,14 @@ Thiết bị nhỏ mục tiêu (camera / điện thoại): **[Chưa chốt]**, k
 **Câu hỏi thảo luận**
 - Bộ dữ liệu đánh giá chung: bao nhiêu người quay, mỗi cử chỉ bao nhiêu giây, những điều kiện nào (sáng/tối, gần/xa, nền rối)? Ai phụ trách quay và gán nhãn?
 - Nên dùng **video quay sẵn** để benchmark thay vì webcam trực tiếp, để mọi lần đo so sánh được với nhau?
-- MediaPipe đóng gói model dạng `.task` (TFLite). Chuyển sang ONNX/OpenVINO tốn công đáng kể. Có đáng làm không, hay để dành các kỹ thuật này cho model của chị ấy?
+- MediaPipe đóng gói model dạng `.task` (TFLite). Chuyển sang ONNX/OpenVINO tốn công đáng kể. Có đáng làm không, hay để dành các kỹ thuật này cho model close source?
 - MediaPipe đã có sẵn tracking (chỉ chạy bước tìm bàn tay khi mất dấu). Phần "frame skipping + tracking" của nhóm khác với cơ chế có sẵn này ở điểm nào?
 - Bao nhiêu kỹ thuật tối ưu là đủ cho báo cáo? Đề xuất chọn 3–4 kỹ thuật làm kỹ (đo đầy đủ trade-off) thay vì nhiều kỹ thuật làm nông.
 - Inference và game có chạy chung tiến trình không? Python có GIL, nên có thể cần tách tiến trình để game không giật.
 
 **Đề xuất**
 - Viết sớm `benchmark.py` chạy trên video chuẩn, xuất bảng p50/p95/p99, FPS, CPU%. Mọi kỹ thuật tối ưu đều đo bằng script này.
-- Thứ tự thử: (1) chạy song song capture và inference, (2) giảm độ phân giải, (3) chỉnh tracking và số tay, (4) giả lập máy yếu. Lượng tử hoá và đổi runtime để sau khi đã có model của chị ấy.
+- Thứ tự thử: (1) chạy song song capture và inference, (2) giảm độ phân giải, (3) chỉnh tracking và số tay, (4) giả lập máy yếu. Lượng tử hoá và đổi runtime để sau khi tích hợp model close source.
 
 ---
 
@@ -332,13 +332,13 @@ Thiết bị nhỏ mục tiêu (camera / điện thoại): **[Chưa chốt]**, k
 | 2 | Logic quyết định (state machine) | Chuỗi event game từ webcam |
 | 3 | Thiết kế game + AR (song song với 1–2) | Prototype chơi được |
 | 4 | Đo lường + tối ưu inference | Bảng benchmark |
-| 5 | Tích hợp model của chị ấy qua adapter | So sánh với baseline |
+| 5 | Tích hợp model close source qua adapter | So sánh với baseline |
 | 6 | Kiểm thử, demo, báo cáo | Nộp cuối kỳ (1/2027) |
 
 **Câu hỏi thảo luận**
 - Gắn ngày cụ thể cho từng giai đoạn. Từ nay đến 1/2027 còn khoảng 12 tuần, trừ thời gian thi.
 - Mốc **"chạy được toàn bộ từ webcam đến game"** (dù rất thô) đặt ở tuần mấy? Đề xuất: tuần 3–4.
-- Nếu đến giữa 12/2026 vẫn chưa nhận được model của chị ấy thì sao? Có phương án dự phòng (chỉ báo cáo với MediaPipe) không?
+- Nếu đến giữa 12/2026 vẫn chưa tích hợp được model close source thì sao? Có phương án dự phòng (chỉ báo cáo với MediaPipe) không?
 - Bao lâu họp một lần? Báo tiến độ qua đâu (Zalo, Messenger, GitHub Issues)?
 - Báo cáo cuối kỳ ai viết phần nào? Có nên viết dần theo từng giai đoạn không?
 
@@ -357,7 +357,7 @@ Việc chung: quay bộ dữ liệu đánh giá, tích hợp, viết báo cáo, 
 **Câu hỏi thảo luận**
 - Ai nhận vai trò nào? Vai trò Logic khá nhẹ: có nên ghép với phần test và tích hợp, hoặc chia sang viết báo cáo?
 - Ai là người **tích hợp** cuối cùng, chịu trách nhiệm toàn bộ hệ thống chạy được?
-- Ai giữ liên lạc với thầy và với chị ấy?
+- Ai giữ liên lạc với thầy?
 
 ---
 
@@ -376,7 +376,7 @@ Việc chung: quay bộ dữ liệu đánh giá, tích hợp, viết báo cáo, 
 
 | Rủi ro | Ảnh hưởng | Cách giảm |
 |---|---|---|
-| Model của chị ấy đến muộn hoặc khác định dạng | Giai đoạn 5 bị dồn | Adapter + mock. Báo cáo được với MediaPipe làm baseline |
+| Model close source tích hợp muộn hoặc khác định dạng | Giai đoạn 5 bị dồn | Adapter + mock. Báo cáo được với MediaPipe làm baseline |
 | Cú đấm (cử chỉ động) nhận diện sai: tay nhoè khi đấm nhanh, khó đo chiều sâu bằng 1 webcam | Game khó chơi, cảm giác "đấm không ăn" | Nới cửa sổ trúng, ngưỡng chỉnh được trong config. Dự phòng: chỉ cần đúng hình dạng tay (nắm/xoè) khi hình tới là tính trúng |
 | Khối lượng nội dung 3D (model, animation, effect) lớn so với 3 tháng | Trễ hạn, thiếu thời gian cho phần inference | Dùng asset miễn phí, làm đủ Level 1 trước rồi mới làm đẹp |
 | Chưa chốt engine nên phần 3D chưa bắt đầu được | Dồn việc | Chốt tech stack trong tuần này |
@@ -401,7 +401,7 @@ Việc chung: quay bộ dữ liệu đánh giá, tích hợp, viết báo cáo, 
 - [ ] Repo, quy ước nhánh
 
 ### Cần hỏi người khác (sau buổi họp)
-- **Chị ấy:** model định dạng gì (PyTorch/ONNX/TFLite)? Đầu vào là ảnh cả khung hình hay ảnh đã cắt vùng tay? Đầu ra là nhãn hay có landmark? Tập cử chỉ gồm những gì? Khi nào giao?
+- **Về model close source:** định dạng gì (PyTorch/ONNX/TFLite)? Đầu vào là ảnh cả khung hình hay ảnh đã cắt vùng tay? Đầu ra là nhãn hay có landmark? Tập cử chỉ gồm những gì? Khi nào có để tích hợp?
 - **Thầy:** "camera" ở yêu cầu thiết bị nhỏ là thiết bị gì? Trọng tâm chấm là inference hay sản phẩm game? Có cần so sánh nhiều model không?
 
 ---

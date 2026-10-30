@@ -9,6 +9,7 @@ results/
 data/videos/*
 data/dataset/*
 !data/**/.gitkeep
+*.pdf
 
 # Unity
 unity/[Ll]ibrary/

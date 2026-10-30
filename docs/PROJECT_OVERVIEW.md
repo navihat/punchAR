@@ -23,7 +23,7 @@ Both parts matter equally: **real-time AI inference** (the research topic) and t
 Do not sacrifice one for the other. The game also serves as the measurement vehicle: latency/accuracy improvements should show up in hit rate and play feel.
 
 ### External model
-- A hand-gesture model will be provided later by a senior ("the external model"). Format, inputs/outputs and gesture set are **unknown**.
+- An existing closed-source hand-gesture model will be integrated later ("the external model"). Format, inputs/outputs and gesture set are **unknown**.
 - Until then the baseline is **MediaPipe** (Hand Landmarker / Gesture Recognizer).
 - The recognizer MUST be swappable without changing game code.
 
