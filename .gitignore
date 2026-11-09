@@ -1,27 +1,54 @@
-# Python
-.venv/
-__pycache__/
-*.pyc
-.pytest_cache/
+# Unity — thư mục tự sinh
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
 
-# Outputs / data
-results/
-data/videos/*
-data/dataset/*
-!data/**/.gitkeep
-*.pdf
+# Asset Store tools
+/[Aa]ssets/AssetStoreTools*
 
-# Unity
-unity/[Ll]ibrary/
-unity/[Tt]emp/
-unity/[Oo]bj/
-unity/[Bb]uild/
-unity/[Bb]uilds/
-unity/[Ll]ogs/
-unity/[Uu]ser[Ss]ettings/
-unity/*.csproj
-unity/*.sln
+# File IDE / project do Unity sinh ra
+.vs/
+.gradle/
+ExportedObj/
+.consulo/
+*.csproj
+*.unityproj
+*.sln
+*.slnx
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
 
-# Editors
-.vscode/
-.idea/
+# .meta của file bị bỏ qua
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# Crash, build
+sysinfo.txt
+crashlytics-buildid.txt
+*.apk
+*.aab
+*.unitypackage
+*.app
+
+# Agent: cài đặt cá nhân
+.claude/settings.local.json
+
+# Hệ điều hành
+.DS_Store
+Thumbs.db
