@@ -29,8 +29,8 @@ python/            pipeline nhận diện — CHƯA CÓ trên main, đang khôi 
   tools/           live_test.py, benchmark.py, eval_dataset.py
   tests/
 models/            gesture_recognizer.task (MediaPipe)
-Assets/Scripts/    script C# (UdpReceiver.cs, Messages.cs, ...)
-Assets/Scenes/     Sandbox_<Tên>.unity — mỗi người một scene riêng
+Assets/_Project/   code và asset Unity của nhóm, mỗi thư mục con một người sở hữu (Network/, AR/, Hands/, Targets/, Gameplay/, UI/, Audio/)
+Assets/Scenes/     Main.unity (một người giữ) + Sandbox_<Tên>.unity — mỗi người một scene riêng
 docs/              tài liệu, xem docs/README.md
 ```
 
@@ -46,7 +46,7 @@ docs/              tài liệu, xem docs/README.md
 2. **File mới** (`.cs`...) được tạo; Unity tự sinh `.meta` khi mở Editor; commit file cùng `.meta` của nó. **Di chuyển / đổi tên / xoá** file trong `Assets/` phải xử lý cả file `.meta` đi kèm (dùng `git mv` cho cả hai), nếu không scene sẽ báo "Missing Script".
 3. Không tạo thư mục rỗng trong `Assets/`.
 4. Không đụng `Library/`, `Temp/`, `Logs/`, `UserSettings/` (Unity tự sinh, không commit).
-5. **Định dạng tin UDP là hợp đồng giữa Python và Unity** (`transport/udp_sender.py` ↔ `Assets/Scripts/Messages.cs`). Không đổi một phía; đổi thì sửa cả hai và ghi vào `docs/team/PHAN_CONG.vi.md`, mục "Chỗ giao nhau".
+5. **Định dạng tin UDP là hợp đồng giữa Python và Unity** (`transport/udp_sender.py` ↔ `Assets/_Project/Network/Messages.cs`). Không đổi một phía; đổi thì sửa cả hai và ghi vào `docs/team/PHAN_CONG.vi.md`, mục "Chỗ giao nhau".
 6. Game chỉ nhận event qua UDP, không gọi model trực tiếp. Recognizer đi qua interface trong `recognizer/base.py` để thay model mà không sửa game.
 7. Mọi luật theo thời gian (giữ, cooldown, ngưỡng) nằm ở Decision Logic, tham số đặt trong `config/default.toml`, tính bằng **ms**, không theo số frame.
 8. Lật gương ảnh và quy đổi tay trái/phải theo góc nhìn người chơi chỉ làm **ở một chỗ** trong pipeline.
@@ -73,6 +73,8 @@ python -m pytest                # unit test
 - `docs/README.md` — mục lục tài liệu
 - `docs/planning/PROJECT_OVERVIEW.vi.md` — bối cảnh, kiến trúc, interface `FrameResult`, logic quyết định, chỉ số cần đo
 - `docs/team/PHAN_CONG.vi.md` — phân công và chỗ giao nhau giữa các phần
+- `docs/team/code-structure.md` — đặt code vào thư mục nào, thư mục nào của ai, file dùng chung. **Code mới phải đặt đúng thư mục ở đây**
+- `docs/team/gitflow.md` — nhánh, commit, PR, xử lý conflict
 - `docs/team/unity-workflow.md` — cách làm việc với Unity (GUID, scene, prefab)
 - `docs/sprints/` — kế hoạch sprint; sprint đang chạy ghi ở `docs/README.md`
 - `docs/decisions/DECISIONS.md` — quyết định đã chốt; ưu tiên hơn tài liệu planning khi mâu thuẫn

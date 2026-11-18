@@ -23,13 +23,13 @@
 | `unity/Assets/Scripts/`: `UdpReceiver.cs`, `Messages.cs`, `GameManager.cs` (phím `F`/`J` giả lập đấm) | Đã viết |
 | `models/gesture_recognizer.task` (8 MB) | Bị xoá ở commit `0587ebe`, cần lấy lại |
 
-**Quy ước để không giẫm chân nhau trong Unity:** mỗi người một scene riêng `Assets/Scenes/Sandbox_<Tên>.unity`, không sửa scene của người khác. Script dùng chung (`UdpReceiver.cs`, `Messages.cs`) do Thái giữ; ai cần sửa thì báo Thái.
+**Quy ước để không giẫm chân nhau:** code đặt đúng thư mục theo [`code-structure.md`](../team/code-structure.md), làm trên nhánh riêng theo [`gitflow.md`](../team/gitflow.md). Mỗi người một scene riêng `Assets/Scenes/Sandbox_<Tên>.unity`, không sửa scene của người khác. Script dùng chung (`UdpReceiver.cs`, `Messages.cs`) do Thái giữ; ai cần sửa thì báo Thái.
 
 ### Thái: Pipeline + cầu nối UDP
 
 | Ngày | Bước | Xong khi |
 |---|---|---|
-| T4 18/11 | Lấy lại `python/`, `models/gesture_recognizer.task` và 3 script Unity từ `44a3e6b`. Script Unity đặt vào `Assets/Scripts/` (repo không còn thư mục `unity/`). Tạo venv, cài `python/requirements.txt`. Push lên `main` | Trên máy Thái chạy được `python -m punchar.main` (từ `python/`), Ctrl+C in ra bảng thời gian. **Duy và Thảo pull được ngay trong tối T4** |
+| T4 18/11 | Lấy lại `python/`, `models/gesture_recognizer.task` và 3 script Unity từ `44a3e6b`. Script Unity đặt theo [`code-structure.md`](../team/code-structure.md): `UdpReceiver.cs`, `Messages.cs` vào `Assets/_Project/Network/`, `GameManager.cs` vào `Assets/_Project/Gameplay/` (repo không còn thư mục `unity/`). Tạo venv, cài `python/requirements.txt`. Mở PR và merge vào `main` (theo [`gitflow.md`](../team/gitflow.md)) | Trên máy Thái chạy được `python -m punchar.main` (từ `python/`), Ctrl+C in ra bảng thời gian. **Duy và Thảo pull được ngay trong tối T4** |
 | T5 19/11 | Viết bản đề xuất hợp đồng dữ liệu: định dạng 3 tin UDP (lấy từ `udp_sender.py` và `Messages.cs`), hệ toạ độ `x, y` (0–1, gốc ở đâu, đã lật gương), tên `kind`. Thêm vào mục "Chỗ giao nhau" của [`PHAN_CONG.vi.md`](../team/PHAN_CONG.vi.md), gửi nhóm | Duy và Thảo đã đọc, góp ý trước tối T6 |
 | T5–T6 | Tạo `Sandbox_Thai.unity`: gắn `UdpReceiver`, viết script đọc tin `pose` và di chuyển 2 quả cầu (trái/phải) theo `x, y` | Giơ 2 tay trước webcam, 2 quả cầu trong Unity chạy theo |
 | T7 21/11 | Ghi số baseline từ bảng thời gian của `main.py`: FPS, thời gian `recognize`, `since_capture` khi có 2 tay trong hình | Có 3 con số, ghi vào mục "Review" cuối file |
@@ -56,7 +56,7 @@ Không phải chờ ai, làm song song từ T4.
 | T4 18/11 | Cài Unity **6000.6.4f1** (đúng bản của project, xem `ProjectSettings/ProjectVersion.txt`), clone repo, mở project. Tạo `Sandbox_Thao.unity` | Mở project không lỗi, scene riêng đã push |
 | T4–T5 | Dựng cảnh tối giản bằng khối có sẵn của Unity (chưa cần làm đẹp): đường chạy ở giữa, máy bắn ở xa, vùng đánh trước camera chia 2 nửa trái/phải | Nhìn vào scene thấy rõ đường chạy, máy bắn và vùng đánh |
 | T5–T6 | Máy bắn phóng khối bay về phía camera, ngẫu nhiên bên trái hoặc phải, theo nhịp cố định (ví dụ 1 khối/giây). Khối bay quá vùng đánh thì tự huỷ và tính "trượt" | Khối bay đều, hai bên, không chồng lên nhau |
-| T6–T7 | Bàn phím giả lập cú đánh: `F` = tay trái, `J` = tay phải (giống `GameManager.cs` cũ, đã có trong `Assets/Scripts/` sau khi Thái push). Bấm đúng bên khi khối đang ở vùng đánh → khối biến mất, sai bên hoặc sai lúc → không có gì | Bấm phím đúng bên khi khối tới vùng đánh thì khối biến mất |
+| T6–T7 | Bàn phím giả lập cú đánh: `F` = tay trái, `J` = tay phải (giống `GameManager.cs` cũ, đã có trong `Assets/_Project/Gameplay/` sau khi Thái push). Bấm đúng bên khi khối đang ở vùng đánh → khối biến mất, sai bên hoặc sai lúc → không có gì | Bấm phím đúng bên khi khối tới vùng đánh thì khối biến mất |
 | T7–CN | Viết xử lý trúng/trượt sao cho phím chỉ là **một nguồn** cú đánh: một hàm nhận `(hand, kind)`, phím gọi hàm đó. Sprint 2 chỉ cần nối tin `strike` từ UDP vào cùng hàm này | Đọc code thấy rõ chỗ để nối UDP; Thái xác nhận khớp với định dạng tin `strike` |
 
 ### Cả nhóm: Buổi họp CN 22/11
