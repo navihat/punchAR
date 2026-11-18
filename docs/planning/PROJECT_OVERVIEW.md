@@ -208,5 +208,5 @@ Weak-device simulation: limit cores (`taskset`), power-saver mode, lower camera 
 - [ ] Success-criteria numbers and how to measure them
 - [ ] Benchmark machine and shared evaluation dataset
 - [ ] External model format, gesture set, delivery date
-- [ ] Names for Person 2 and Person 3 (task split approved 2026-10-26, see `PHAN_CONG.vi.md`; Person 1 = the user)
+- [ ] Names for Person 2 and Person 3 (task split approved 2026-10-26, see `../team/PHAN_CONG.vi.md`; Person 1 = the user)
 - [ ] How the game is delivered (build .exe vs. run from editor)

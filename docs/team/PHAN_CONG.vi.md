@@ -1,6 +1,6 @@
 # PHÂN CÔNG — Game đấm khối AR
 
-> Duyệt ngày 26/10/2026. Bối cảnh dự án và các quyết định đã chốt: `PROJECT_OVERVIEW.md`.
+> Duyệt ngày 26/10/2026. Bối cảnh dự án: [`PROJECT_OVERVIEW.vi.md`](../planning/PROJECT_OVERVIEW.vi.md). Quyết định đã chốt: [`DECISIONS.md`](../decisions/DECISIONS.md).
 
 **Cách chia:** mỗi người phụ trách **trọn một lát** từ đầu đến cuối, không chia "người làm AI / người làm game". Như vậy không ai bị dồn việc, và cả 3 người đều có phần VR/AR để trình bày.
 
@@ -75,6 +75,8 @@
 ---
 
 ## ⏰ Mốc
+
+> Lịch cũ, đã thay bằng [kế hoạch sprint](../sprints/README.md) từ 16/11/2026.
 
 | Giai đoạn | Thời gian | N1 (Thái) | N2 (Duy) | N3 (Thảo) |
 |---|---|---|---|---|
