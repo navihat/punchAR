@@ -1,0 +1,27 @@
+# All tunable values. Times are in ms.
+
+[capture]
+camera = 0
+width = 1280
+height = 720
+fps = 30
+mirror = true
+
+[recognizer]
+type = "mediapipe"          # mediapipe | replay
+num_hands = 2
+det_conf = 0.5
+presence_conf = 0.5
+track_conf = 0.5
+
+[decision]
+# TODO [TBD]: tune with recorded videos
+min_shape_score = 0.6
+punch_size_growth = 0.25    # relative hand-size increase within window
+punch_window_ms = 150
+cooldown_ms = 300
+lost_grace_ms = 100         # tolerate brief tracking loss during a punch
+
+[transport]
+host = "127.0.0.1"
+port = 5005

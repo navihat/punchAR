@@ -52,3 +52,10 @@ crashlytics-buildid.txt
 # Hệ điều hành
 .DS_Store
 Thumbs.db
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+results/
