@@ -23,7 +23,7 @@ Webcam → [1] Capture → [2] Recognizer → [3] Decision Logic → (UDP) → [
 ## Cấu trúc
 
 ```
-python/            pipeline nhận diện — CHƯA CÓ trên main, đang khôi phục từ commit 44a3e6b (Sprint 1)
+python/            pipeline nhận diện (khôi phục từ commit 44a3e6b)
   punchar/         capture/, recognizer/, decision/, transport/, metrics/
   config/          default.toml — mọi ngưỡng và tham số, thời gian tính bằng ms
   tools/           live_test.py, benchmark.py, eval_dataset.py
@@ -60,10 +60,12 @@ docs/              tài liệu, xem docs/README.md
 
 ## Lệnh
 
-Khi `python/` đã có trên `main`, chạy từ thư mục `python/`:
+Chạy từ thư mục `python/`. Dùng Python 3.12 (mediapipe chưa chắc có bản cho 3.14); `uv` tự tải 3.12 nếu máy chưa có:
 
 ```bash
-pip install -r requirements.txt
+uv venv --python 3.12 .venv     # một lần
+uv pip install -r requirements.txt
+source .venv/bin/activate       # mỗi lần mở terminal mới
 python -m punchar.main          # toàn bộ pipeline, gửi UDP sang Unity; Ctrl+C in bảng thời gian
 python -m pytest                # unit test
 ```
