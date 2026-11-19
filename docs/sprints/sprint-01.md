@@ -9,7 +9,9 @@
 | Thảo | Học Unity. Dựng cảnh: đường chạy, máy bắn phóng khối bên trái/phải, vùng đánh. Bàn phím giả lập cú đánh | Bấm phím đúng bên khi khối tới vùng đánh thì khối biến mất |
 | Cả nhóm | Chốt định dạng tin UDP, `FrameResult`, tên loại cú đánh (`PUNCH_STRAIGHT`, `BLOCK`, `OPEN_PALM`). Chốt tư thế "đấm thủ", vai trò "xoè tay", có làm "hình phản chiếu" hay không | Ghi vào [`PHAN_CONG.vi.md`](../team/PHAN_CONG.vi.md), mục "Cần chốt thêm" không còn câu hỏi |
 
-## Chi tiết (cập nhật T4 18/11)
+## Chi tiết (cập nhật T5 19/11)
+
+**T5 19/11:** đã xong bước T4 của Thái: `python/`, `models/gesture_recognizer.task` và 3 script Unity (`Assets/_Project/Network/`, `Assets/_Project/Gameplay/`) đã có trên `main`. Cài đặt theo mục "Lệnh" trong [`AGENTS.md`](../../AGENTS.md) (Python 3.12, venv ở `python/.venv`). Duy và Thảo pull về là chạy được. Chạy thử 20 giây trên máy Thái: `recognize` p50 ≈ 25 ms nhưng chỉ ~10 FPS, cần xem lại webcam trước khi ghi baseline T7.
 
 Đến 18/11 chưa có việc nào xong, còn 5 ngày (T4 → CN). Nhiều thứ đã có sẵn trong commit `44a3e6b`, phần lớn việc tuần này là lấy lại và làm cho chạy:
 
@@ -21,7 +23,7 @@
 | `python/punchar/transport/udp_sender.py`: gửi tin `pose` / `strike` / `hand_lost` | Đã viết |
 | `python/config/default.toml`: ngưỡng đấm thẳng, cooldown, cổng UDP | Đã viết, số chưa chỉnh |
 | `unity/Assets/Scripts/`: `UdpReceiver.cs`, `Messages.cs`, `GameManager.cs` (phím `F`/`J` giả lập đấm) | Đã viết |
-| `models/gesture_recognizer.task` (8 MB) | Bị xoá ở commit `0587ebe`, cần lấy lại |
+| `models/gesture_recognizer.task` (8 MB) | Bị xoá ở commit `0587ebe`, đã lấy lại (T5) |
 
 **Quy ước để không giẫm chân nhau:** code đặt đúng thư mục theo [`code-structure.md`](../team/code-structure.md), làm trên nhánh riêng theo [`gitflow.md`](../team/gitflow.md). Mỗi người một scene riêng `Assets/Scenes/Sandbox_<Tên>.unity`, không sửa scene của người khác. Script dùng chung (`UdpReceiver.cs`, `Messages.cs`) do Thái giữ; ai cần sửa thì báo Thái.
 
