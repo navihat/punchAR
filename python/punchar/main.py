@@ -42,7 +42,7 @@ def main():
                 sender.send_pose(result)
                 for ev in events:
                     sender.send_strike(ev)
-            timer.add("since_capture", time.monotonic() * 1000 - frame.timestamp_ms)
+            timer.add("since_capture", time.time_ns() / 1e6 - frame.timestamp_ms)
     except KeyboardInterrupt:
         pass
     finally:

@@ -10,7 +10,7 @@ import numpy as np
 @dataclass
 class Frame:
     frame_id: int
-    timestamp_ms: int   # capture time, time.monotonic based
+    timestamp_ms: int   # capture time, Unix epoch ms (shared clock with Unity)
     image: np.ndarray   # BGR, already mirrored if configured
 
 
@@ -41,7 +41,7 @@ class Camera:
             ok, img = self.cap.read()
             if not ok:
                 continue
-            ts = int(time.monotonic() * 1000)
+            ts = time.time_ns() // 1_000_000
             if self.mirror:
                 img = cv2.flip(img, 1)
             with self._lock:
