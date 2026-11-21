@@ -85,6 +85,15 @@ Không phải chờ ai, làm song song từ T4.
   - `recognize` ổn định giữa 2 lượt (lệch ~3%). `since_capture` − `recognize` ≈ 2 ms: frame được xử lý ngay, không xếp hàng.
   - `decision` = 0.0 ms vì `state_machine.py` chưa có logic, số này chưa có ý nghĩa.
   - Chưa ghi thời gian chạy mỗi lượt nên FPS lấy theo giới hạn webcam: ở 1280×720 webcam dùng YUYV (không nén), `v4l2-ctl` báo tối đa **10 FPS**. Pipeline chạy được ~45 FPS (`recognize` ~22 ms), nên nút thắt là webcam, không phải model.
-  - Đã sửa: `camera.py` yêu cầu MJPG → webcam ra 30 FPS ở cùng độ phân giải (đo thử 3 giây: 30.3 FPS). **Số "sau" đo lại bằng `main.py` trong 60 giây: chưa có.**
+  - Đã sửa: `camera.py` yêu cầu MJPG → webcam ra 30 FPS ở cùng độ phân giải (đo thử 3 giây: 30.3 FPS).
+
+  **Sau khi bật MJPG** (đo CN 22/11, cùng điều kiện và cách đo như trên):
+
+  | Lượt | n | `recognize` p50 / p95 / p99 | `since_capture` p50 / p95 / p99 | `send` p50 |
+  |---|---|---|---|---|
+  | MJPG | 2223 | 20.4 / 30.7 / 39.6 | 22.1 / 33.1 / 43.4 | 0.1 |
+
+  - `recognize` và `since_capture` gần như không đổi so với trước (p50 lệch ~1–2 ms): MJPG chỉ gỡ nút thắt ở webcam, không làm chậm model, và frame vẫn được xử lý ngay (`since_capture` − `recognize` ≈ 2 ms).
+  - FPS **≈ 30** (trước: ~10): lượt này chạy khoảng 70–75 giây (ước lượng, không bấm giờ), 2223 / 70–75 s ≈ 29.6–31.8 FPS. Webcam giới hạn 30 FPS nên lấy ~30. Pipeline đã theo kịp webcam; giới hạn tiếp theo vẫn là webcam (model cho phép ~45 FPS).
 - **Thử đấm thẳng (Duy):** trái …/20 đúng, … lần nhầm · phải …/20 đúng, … lần nhầm
 - **Việc chuyển sang Sprint 2:**
