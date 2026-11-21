@@ -17,6 +17,8 @@ class Frame:
 class Camera:
     def __init__(self, camera=0, width=1280, height=720, fps=30, mirror=True):
         self.cap = cv2.VideoCapture(camera)
+        # MJPG before size: uncompressed YUYV caps many webcams at 10 FPS for 720p
+        self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
         self.cap.set(cv2.CAP_PROP_FPS, fps)
