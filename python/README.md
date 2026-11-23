@@ -28,7 +28,7 @@ python/
 │   ├── pose_templates.npz      # Vector đặc trưng trung bình của từng thế tay
 │   ├── pose_config.json        # Ngưỡng động học chi tiết của các thế
 │   ├── gesture_dataset.npz     # Toàn bộ dữ liệu toạ độ landmark đã thu thập
-│   └── dataset_images/         # Ảnh chụp mẫu (full frame và crop bàn tay)
+│   └── dataset_images/         # Ảnh chụp mẫu (raw images lưu trữ trên Google Drive per gitflow.md)
 ├── tools/                      # Công cụ thu thập, kiểm thử và giả lập
 │   ├── collect_and_label.py    # Thu thập mẫu và gán nhãn tự động
 │   ├── punch_debug.py          # Kiểm thử nhận diện trực quan trên OpenCV + UDP

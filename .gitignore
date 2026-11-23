@@ -59,3 +59,7 @@ __pycache__/
 *.pyc
 .pytest_cache/
 results/
+
+# Gesture dataset raw images (stored on Google Drive per gitflow.md)
+python/data/dataset_images/
+
