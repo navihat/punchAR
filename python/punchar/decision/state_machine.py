@@ -40,6 +40,7 @@ class _HandTrack:
     last_valid_palm_ms: int = -9999
     is_block_ready: bool = False
     block_start_ms: int = -1
+    is_reported_lost: bool = True
 
 
 def hand_size(hand: HandResult) -> float:
@@ -54,6 +55,7 @@ class DecisionLogic:
     def __init__(self, cfg: dict):
         self.cfg = cfg
         self.tracks: Dict[str, _HandTrack] = {"Left": _HandTrack(), "Right": _HandTrack()}
+        self.lost_hands: List[str] = []
 
         # Temporal thresholds (all in ms)
         self.window_ms = cfg.get("window_ms", cfg.get("punch_window_ms", 120))
@@ -90,6 +92,7 @@ class DecisionLogic:
     def update(self, frame: FrameResult) -> List[StrikeEvent]:
         """Feed one frame, return strike events confirmed on this frame."""
         events: List[StrikeEvent] = []
+        self.lost_hands = []
         t_ms = frame.timestamp_ms
         seen_hands = set()
 
@@ -101,6 +104,7 @@ class DecisionLogic:
 
             seen_hands.add(side)
             track.last_seen_ms = t_ms
+            track.is_reported_lost = False
 
             # Palm position
             if hand.landmarks and len(hand.landmarks) > 9:
@@ -179,6 +183,9 @@ class DecisionLogic:
         for side, track in self.tracks.items():
             if side not in seen_hands:
                 if (t_ms - track.last_seen_ms) > self.lost_grace_ms:
+                    if not track.is_reported_lost and track.last_seen_ms > 0:
+                        track.is_reported_lost = True
+                        self.lost_hands.append(side)
                     track.state = HandState.IDLE
                     track.history.clear()
                     track.is_block_ready = False
