@@ -157,7 +157,7 @@ namespace PunchAR.Hand3D
                 {
                     int idx = i * 3;
                     // Toạ độ từ Messages.cs: x, y, z (x, y đã lật chuẩn theo Viewport)
-                    target.landmarks[i] = new Vector3(pose.lm[idx], -pose.lm[idx + 1], pose.lm[idx + 2]);
+                    target.landmarks[i] = new Vector3(pose.lm[idx], pose.lm[idx + 1], pose.lm[idx + 2]);
                 }
                 target.hasLandmarks = true;
             }

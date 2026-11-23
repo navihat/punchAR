@@ -53,7 +53,7 @@ def flatten_landmarks_21(landmarks_src):
             return None
         for p in pts:
             flat.append(round(float(p.x), 4))
-            flat.append(round(float(p.y), 4))
+            flat.append(round(float(1.0 - p.y), 4))
             flat.append(round(float(p.z), 4))
         return flat
 
@@ -61,7 +61,7 @@ def flatten_landmarks_21(landmarks_src):
         return None
     for p in landmarks_src:
         flat.append(round(float(p[0]), 4))
-        flat.append(round(float(p[1]), 4))
+        flat.append(round(float(1.0 - p[1]), 4))
         flat.append(round(float(p[2]), 4))
     return flat
 
@@ -205,7 +205,7 @@ class DynamicGestureValidator:
         pose_item = {
             "hand": self.hand_label,
             "x": round(x, 4),
-            "y": round(y, 4),
+            "y": round(1.0 - y, 4),
             "shape": static_shape,
             "landmarks": lm_source,
         }
@@ -256,7 +256,7 @@ class DynamicGestureValidator:
                 self.cooldown_until_ms = t_ms + self.th["cooldown_ms"]
                 strike_ev = {
                     "type": "strike", "t": t_ms, "hand": self.hand_label,
-                    "kind": "PUNCH_STRAIGHT", "x": round(x, 4), "y": round(y, 4)
+                    "kind": "PUNCH_STRAIGHT", "x": round(x, 4), "y": round(1.0 - y, 4)
                 }
                 return make_result(strike_ev, True, "PUNCH_STRAIGHT", "VALID STRIKE: PUNCH!")
             elif v_scale >= 0.55 * req_v:
@@ -272,7 +272,7 @@ class DynamicGestureValidator:
                 self.cooldown_until_ms = t_ms + self.th["cooldown_ms"]
                 strike_ev = {
                     "type": "strike", "t": t_ms, "hand": self.hand_label,
-                    "kind": "OPEN_PALM", "x": round(x, 4), "y": round(y, 4)
+                    "kind": "OPEN_PALM", "x": round(x, 4), "y": round(1.0 - y, 4)
                 }
                 return make_result(strike_ev, True, "OPEN_PALM", "VALID STRIKE: OPEN_PALM!")
             else:

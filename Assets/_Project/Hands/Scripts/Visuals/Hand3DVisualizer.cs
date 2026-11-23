@@ -274,11 +274,11 @@ namespace PunchAR.Hand3D
             if (useCameraViewportMapping && Camera.main != null)
             {
                 float depth = Mathf.Max(0.4f, hitPlaneZ + zOffset);
-                return Camera.main.ViewportToWorldPoint(new Vector3(xUdp, 1.0f - yUdp, depth));
+                return Camera.main.ViewportToWorldPoint(new Vector3(xUdp, yUdp, depth));
             }
 
             float worldX = (xUdp - 0.5f) * playWidth;
-            float worldY = (0.5f - yUdp) * playHeight + centerY;
+            float worldY = (yUdp - 0.5f) * playHeight + centerY;
             return new Vector3(worldX, worldY, hitPlaneZ + zOffset);
         }
 

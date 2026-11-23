@@ -65,12 +65,12 @@ def build_hand_lost_packet(timestamp_ms: int, hand: str) -> Dict:
 
 
 def _make_synthetic_hand_lm(curl_ratio: float) -> List[Tuple[float, float, float]]:
-    lms: List[Tuple[float, float, float]] = [(0.5, 0.8, 0.0)]
+    lms: List[Tuple[float, float, float]] = [(0.5, 0.2, 0.0)]
     finger_x_offsets = [-0.10, -0.05, 0.0, 0.05, 0.10]
     seg_len = 0.06
 
     for fx in finger_x_offsets:
-        base_x, base_y, base_z = 0.5 + fx, 0.65, 0.0
+        base_x, base_y, base_z = 0.5 + fx, 0.35, 0.0
         lms.append((base_x, base_y, base_z))
 
         theta1 = curl_ratio * math.radians(75.0)
@@ -79,17 +79,17 @@ def _make_synthetic_hand_lm(curl_ratio: float) -> List[Tuple[float, float, float
 
         p2 = (
             base_x,
-            base_y - seg_len * math.cos(theta1),
+            base_y + seg_len * math.cos(theta1),
             base_z - seg_len * math.sin(theta1),
         )
         p3 = (
             p2[0],
-            p2[1] - seg_len * math.cos(theta2),
+            p2[1] + seg_len * math.cos(theta2),
             p2[2] - seg_len * math.sin(theta2),
         )
         p4 = (
             p3[0],
-            p3[1] - seg_len * math.cos(theta3),
+            p3[1] + seg_len * math.cos(theta3),
             p3[2] - seg_len * math.sin(theta3),
         )
 
