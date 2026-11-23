@@ -17,20 +17,35 @@ class Frame:
 
 class Camera:
     def __init__(self, camera=0, width=1280, height=720, fps=30, mirror=True):
-        self.cap = cv2.VideoCapture(camera)
-        # MJPG before size: uncompressed YUYV caps many webcams at 10 FPS for 720p
-        self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-        self.cap.set(cv2.CAP_PROP_FPS, fps)
-        self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-        if not self.cap.isOpened():
-            raise RuntimeError(f"Cannot open camera {camera}")
+        self.camera_idx = camera
+        self.width = width
+        self.height = height
+        self.fps = fps
         self.mirror = mirror
+
+        self.cap = self._open_capture(camera)
+        # Test read 1 frame: if camera 0 fails on Windows (e.g. IR camera MSMF error -1072875772), auto-probe camera 1
+        ok, _ = self.cap.read()
+        if not ok and camera == 0:
+            print("[Camera] Camera 0 failed to stream (likely IR sensor/Windows Hello). Auto-fallback to camera 1...")
+            self.cap.release()
+            self.cap = self._open_capture(1)
+            self.camera_idx = 1
+
         self._latest: Optional[Frame] = None
         self._lock = threading.Lock()
         self._running = False
         self._thread: Optional[threading.Thread] = None
+
+    def _open_capture(self, idx):
+        cap = cv2.VideoCapture(idx)
+        # MJPG before size: uncompressed YUYV caps many webcams at 10 FPS for 720p
+        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.width)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.height)
+        cap.set(cv2.CAP_PROP_FPS, self.fps)
+        cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+        return cap
 
     def start(self):
         self._running = True

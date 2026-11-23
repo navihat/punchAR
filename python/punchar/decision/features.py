@@ -44,13 +44,39 @@ def extract_hand_features(landmarks_list) -> Dict:
     }
 
 
-def get_corrected_handedness(raw_label: str, score: float, invert: bool = False) -> Tuple[str, float]:
-    """Get standardized player-view handedness."""
-    if invert:
+def get_corrected_handedness(
+    raw_source,
+    score: float = 1.0,
+    invert: bool = False,
+    invert_handedness: bool = False,
+) -> Tuple[str, float]:
+    """Get standardized player-view handedness.
+
+    Accepts either:
+      - MediaPipe ClassificationList (handedness object from results.multi_handedness)
+      - A string raw_label ("Left" or "Right") with explicit float score
+    """
+    inv = invert or invert_handedness
+
+    if hasattr(raw_source, "classification"):
+        first = raw_source.classification[0]
+        raw_label = first.label
+        sc = float(first.score)
+    elif isinstance(raw_source, (list, tuple)) and len(raw_source) > 0 and hasattr(raw_source[0], "label"):
+        raw_label = raw_source[0].label
+        sc = float(raw_source[0].score)
+    elif isinstance(raw_source, str):
+        raw_label = raw_source
+        sc = float(score)
+    else:
+        raw_label = str(raw_source)
+        sc = float(score)
+
+    if inv:
         corrected = "Right" if raw_label == "Left" else "Left"
     else:
         corrected = raw_label
-    return corrected, float(score)
+    return corrected, sc
 
 
 def flatten_landmarks_21(landmarks_source) -> Optional[List[float]]:

@@ -73,3 +73,27 @@ def test_block_held_fist_emits_block():
     block_events = [e for e in events if e.kind == "BLOCK"]
     assert len(block_events) == 1
     assert block_events[0].kind == "BLOCK"
+
+
+def test_get_corrected_handedness():
+    from punchar.decision.features import get_corrected_handedness
+
+    # String input
+    assert get_corrected_handedness("Left", 0.9) == ("Left", 0.9)
+    assert get_corrected_handedness("Left", 0.9, invert=True) == ("Right", 0.9)
+    assert get_corrected_handedness("Right", 0.8, invert_handedness=True) == ("Left", 0.8)
+
+    # MediaPipe Classification mock
+    class MockClassification:
+        label = "Left"
+        score = 0.95
+
+    class MockHandedness:
+        classification = [MockClassification()]
+
+    label, score = get_corrected_handedness(MockHandedness(), invert_handedness=False)
+    assert label == "Left" and score == 0.95
+
+    label_inv, _ = get_corrected_handedness(MockHandedness(), invert_handedness=True)
+    assert label_inv == "Right"
+
