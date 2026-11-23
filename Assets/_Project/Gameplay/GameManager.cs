@@ -2,39 +2,36 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 // Feeds strikes into StrikeJudge from two sources:
-//   1. UDP "strike" messages from Python (via UdpReceiver)
+//   1. UDP "strike" messages from Python (via UdpReceiver event)
 //   2. Keyboard, as a fallback for development without webcam:
 //        F / J = PUNCH_STRAIGHT left / right
 //        D / K = BLOCK          left / right
 //        S / L = OPEN_PALM      left / right
 // Both go through the same OnStrike(hand, kind).
-// Reads receiver.Messages itself, so do not put another reader (e.g. PoseSpheres) in the same scene.
 public class GameManager : MonoBehaviour
 {
     public UdpReceiver receiver;
     public StrikeJudge judge;
     public bool keyboardStrikes = true;
 
+    void OnEnable()
+    {
+        if (receiver == null) receiver = FindFirstObjectByType<UdpReceiver>();
+        if (receiver != null) receiver.OnStrikeReceived += HandleStrike;
+    }
+
+    void OnDisable()
+    {
+        if (receiver != null) receiver.OnStrikeReceived -= HandleStrike;
+    }
+
+    void HandleStrike(StrikeMessage s)
+    {
+        OnStrike(s.hand, s.kind);
+    }
+
     void Update()
     {
-        while (receiver != null && receiver.Messages.TryDequeue(out string json))
-        {
-            var msg = JsonUtility.FromJson<BaseMessage>(json);
-            switch (msg.type)
-            {
-                case "strike":
-                    var s = JsonUtility.FromJson<StrikeMessage>(json);
-                    OnStrike(s.hand, s.kind);
-                    break;
-                case "pose":
-                    // 3D hands: Duy (Assets/_Project/Hands/)
-                    break;
-                case "hand_lost":
-                    break;
-                // unknown type: ignore (data contract)
-            }
-        }
-
         if (keyboardStrikes) ReadKeyboard();
     }
 
