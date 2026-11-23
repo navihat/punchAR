@@ -1,7 +1,7 @@
 # All tunable values. Times are in ms.
 
 [capture]
-camera = 1    # 1 for laptops with IR camera at index 0 (e.g. Acer Aspire 7)
+camera = 0    # Default webcam index. For laptops with IR camera at index 0, pass `--camera 1` via CLI.
 width = 1280
 height = 720
 fps = 30

@@ -140,6 +140,16 @@ namespace PunchAR.Hand3D
                 Debug.LogError("[Hand3DVisualizer] Chưa gắn UdpHandProvider!");
             }
 
+            // Tự động đảm bảo tay trái uốn gập đúng chiều (-1 do xương đối xứng Blender) nếu chưa được đặt âm
+            if (leftHandRig.fingerBendDirection > 0f)
+            {
+                leftHandRig.fingerBendDirection = -1f;
+            }
+            if (leftHandRig.thumbBendDirection > 0f)
+            {
+                leftHandRig.thumbBendDirection = -1f;
+            }
+
             leftHandRig.CacheInitialRotations("Left");
             rightHandRig.CacheInitialRotations("Right");
         }
@@ -257,7 +267,8 @@ namespace PunchAR.Hand3D
 
             if (handForward.sqrMagnitude > 0.0001f && palmNormal.sqrMagnitude > 0.0001f)
             {
-                Quaternion targetWorldRot = Quaternion.LookRotation(handForward, -palmNormal)
+                // Căn chỉnh pháp tuyến lòng bàn tay theo +Z và trục ngón tay theo +Y (khớp với bind pose gốc)
+                Quaternion targetWorldRot = Quaternion.LookRotation(palmNormal, handForward)
                                             * Quaternion.Euler(rig.wristRotationOffset);
                 rig.root.rotation = Quaternion.Slerp(rig.root.rotation, targetWorldRot, Time.deltaTime * rotationSmoothSpeed);
             }
@@ -354,10 +365,18 @@ namespace PunchAR.Hand3D
         [ContextMenu("Auto-Map Blender Bones (.L / .R)")]
         private void AutoMapBlenderBones()
         {
-            // Tự động nhận diện hậu tố .L hoặc .R (hỗ trợ cả trường hợp LeftHand clone từ RightHand)
+            // Tự động nhận diện hậu tố .L hoặc .R
             MapRigAutoSuffix(leftHandRig, ".L", ".R");
             MapRigAutoSuffix(rightHandRig, ".R", ".L");
-            Debug.Log("[Hand3DVisualizer] Đã tự động ánh xạ xong 30 đốt xương (hỗ trợ cả tay clone .R). Hãy kiểm tra lại Inspector!");
+
+            // Xương đối xứng qua trục X (Blender Symmetrize) có trục uốn gập cục bộ ngược chiều
+            // nên tay trái cần direction = -1 để uốn gập vào lòng bàn tay
+            leftHandRig.fingerBendDirection = -1f;
+            leftHandRig.thumbBendDirection = -1f;
+            rightHandRig.fingerBendDirection = 1f;
+            rightHandRig.thumbBendDirection = 1f;
+
+            Debug.Log("[Hand3DVisualizer] Đã tự động ánh xạ xong 30 đốt xương và cài đặt đúng chiều uốn (Left: -1, Right: 1).");
         }
 
         private void MapRigAutoSuffix(HandRigConfig rig, string primarySuffix, string fallbackSuffix)
