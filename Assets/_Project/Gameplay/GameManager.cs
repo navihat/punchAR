@@ -1,9 +1,19 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-// Reads messages and drives the game. Keyboard keys emit fake strikes for development.
+// Feeds strikes into StrikeJudge from two sources:
+//   1. UDP "strike" messages from Python (via UdpReceiver)
+//   2. Keyboard, as a fallback for development without webcam:
+//        F / J = PUNCH_STRAIGHT left / right
+//        D / K = BLOCK          left / right
+//        S / L = OPEN_PALM      left / right
+// Both go through the same OnStrike(hand, kind).
+// Reads receiver.Messages itself, so do not put another reader (e.g. PoseSpheres) in the same scene.
 public class GameManager : MonoBehaviour
 {
     public UdpReceiver receiver;
+    public StrikeJudge judge;
+    public bool keyboardStrikes = true;
 
     void Update()
     {
@@ -12,26 +22,38 @@ public class GameManager : MonoBehaviour
             var msg = JsonUtility.FromJson<BaseMessage>(json);
             switch (msg.type)
             {
-                case "pose":
-                    // TODO: move 3D hands
-                    break;
                 case "strike":
-                    OnStrike(JsonUtility.FromJson<StrikeMessage>(json));
+                    var s = JsonUtility.FromJson<StrikeMessage>(json);
+                    OnStrike(s.hand, s.kind);
+                    break;
+                case "pose":
+                    // 3D hands: Duy (Assets/_Project/Hands/)
                     break;
                 case "hand_lost":
-                    // TODO: hide hand
                     break;
+                // unknown type: ignore (data contract)
             }
         }
 
-        // Fake input (no recognizer needed)
-        if (Input.GetKeyDown(KeyCode.F)) OnStrike(new StrikeMessage { hand = "Left", kind = "PUNCH_STRAIGHT" });
-        if (Input.GetKeyDown(KeyCode.J)) OnStrike(new StrikeMessage { hand = "Right", kind = "PUNCH_STRAIGHT" });
+        if (keyboardStrikes) ReadKeyboard();
     }
 
-    void OnStrike(StrikeMessage s)
+    void ReadKeyboard()
     {
-        // TODO: hit check against shapes in the hit zone, score, combo
-        Debug.Log($"Strike {s.hand} {s.kind}");
+        var kb = Keyboard.current;
+        if (kb == null) return;
+        if (kb.fKey.wasPressedThisFrame) OnStrike(StrikeKinds.Left, StrikeKinds.PunchStraight);
+        if (kb.jKey.wasPressedThisFrame) OnStrike(StrikeKinds.Right, StrikeKinds.PunchStraight);
+        if (kb.dKey.wasPressedThisFrame) OnStrike(StrikeKinds.Left, StrikeKinds.Block);
+        if (kb.kKey.wasPressedThisFrame) OnStrike(StrikeKinds.Right, StrikeKinds.Block);
+        if (kb.sKey.wasPressedThisFrame) OnStrike(StrikeKinds.Left, StrikeKinds.OpenPalm);
+        if (kb.lKey.wasPressedThisFrame) OnStrike(StrikeKinds.Right, StrikeKinds.OpenPalm);
+    }
+
+    // Single entry point for every strike source.
+    public void OnStrike(string hand, string kind)
+    {
+        if (judge != null) judge.OnStrike(hand, kind);
+        else Debug.Log($"Strike {hand} {kind} (no StrikeJudge assigned)");
     }
 }

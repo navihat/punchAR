@@ -44,7 +44,7 @@ def main():
                     sender.send_strike(ev)
                 for side in getattr(decision, "lost_hands", []):
                     sender.send_hand_lost(result.timestamp_ms, side)
-            timer.add("since_capture", time.monotonic() * 1000 - frame.timestamp_ms)
+            timer.add("since_capture", time.time_ns() / 1e6 - frame.timestamp_ms)
     except KeyboardInterrupt:
         pass
     finally:

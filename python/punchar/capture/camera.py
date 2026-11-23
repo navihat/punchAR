@@ -11,14 +11,15 @@ import numpy as np
 @dataclass
 class Frame:
     frame_id: int
-    timestamp_ms: int   # capture time in Unix epoch ms
+    timestamp_ms: int   # capture time, Unix epoch ms (shared clock with Unity)
     image: np.ndarray   # BGR, already mirrored if configured
 
 
 class Camera:
     def __init__(self, camera=0, width=1280, height=720, fps=30, mirror=True):
         self.cap = cv2.VideoCapture(camera)
-        self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+        # MJPG before size: uncompressed YUYV caps many webcams at 10 FPS for 720p
+        self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
         self.cap.set(cv2.CAP_PROP_FPS, fps)
