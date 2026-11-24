@@ -16,11 +16,16 @@ namespace PunchAR.Hand3D
         public Transform[] ring = new Transform[3];
         public Transform[] pinky = new Transform[3];
 
-        [Header("Trục gập cục bộ (Chỉ đặt Direction là 1 hoặc -1)")]
+        [Header("Trục gập cục bộ 4 ngón (Chỉ đặt Direction là 1 hoặc -1)")]
         public Vector3 fingerBendAxis = new Vector3(1f, 0f, 0f);
         public float fingerBendDirection = 1f;
 
-        public Vector3 thumbBendAxis = new Vector3(0f, 0f, 1f);
+        [Header("Trục gập ngón cái Đốt 01 CMC (Khép vào lòng bàn tay)")]
+        public Vector3 thumbCmcBendAxis = new Vector3(0f, 0f, 1f);
+        public float thumbCmcBendDirection = 1f;
+
+        [Header("Trục gập ngón cái Đốt 02 MCP & 03 IP (Gập bản lề)")]
+        public Vector3 thumbBendAxis = new Vector3(1f, 0f, 0f);
         public float thumbBendDirection = 1f;
 
         [Header("Hiệu chỉnh góc xoay cổ tay 3D (khi bật Enable Wrist Rotation)")]
@@ -39,6 +44,19 @@ namespace PunchAR.Hand3D
             if (root != null)
             {
                 rootInitRot = root.rotation;
+
+                // Tự động kiểm tra Scale biến dạng (tránh lỗi bẹp Y=0 hoặc Scale âm)
+                foreach (Transform child in root)
+                {
+                    if (Mathf.Abs(child.localScale.y) < 0.001f || Mathf.Abs(child.localScale.x) < 0.001f || Mathf.Abs(child.localScale.z) < 0.001f)
+                    {
+                        Debug.LogError($"[Hand3DVisualizer] LỖI BIẾN DẠNG: Model con '{child.name}' của '{root.name}' ({handLabel}) có Scale bị triệt tiêu về 0 ({child.localScale})! Cần đặt lại Scale (5, 5, 5) trong Unity Inspector.");
+                    }
+                    else if (child.localScale.z < 0 || child.localScale.x < 0)
+                    {
+                        Debug.LogWarning($"[Hand3DVisualizer] CẢNH BÁO: Model con '{child.name}' của '{root.name}' ({handLabel}) có Scale âm ({child.localScale})! Điều này sẽ làm đảo lộn chiều gập ngón tay và pháp tuyến 3D.");
+                    }
+                }
 
                 // Tự động vô hiệu hoá Animator thừa trên model FBX để không khóa cứng khớp xương
                 Animator[] animators = root.GetComponentsInChildren<Animator>(true);
@@ -75,6 +93,7 @@ namespace PunchAR.Hand3D
             {
                 if (i < bones.Length && bones[i] != null)
                 {
+                    // Lưu đúng Rest Pose thật sự của FBX Bind Pose (CẤM gán Quaternion.identity)
                     cache[i] = bones[i].localRotation;
                 }
                 else
@@ -93,9 +112,13 @@ namespace PunchAR.Hand3D
         [SerializeField] private MonoBehaviour providerSource;
         private IHandInputProvider _provider;
 
-        [Header("2. Ánh xạ Không gian 3D & Mặt phẳng Đánh (Hit Plane)")]
+        [Header("2. Ánh xạ Không gian 3D & Giới hạn Khung nhìn (Movement Bounds)")]
         [Tooltip("Bật để chiếu thẳng theo khung hình Main Camera; Tắt để dùng PlayWidth / PlayHeight cố định")]
         [SerializeField] private bool useCameraViewportMapping = false;
+        [Tooltip("Khoảng lề an toàn ở rìa khung hình camera (tránh bàn tay bay ra mép màn hình)")]
+        [SerializeField] private Vector2 viewportMargin = new Vector2(0.08f, 0.08f);
+        [Tooltip("Khoảng cách Z tối thiểu tới Camera để tránh đâm xuyên mặt kính")]
+        [SerializeField] private float minCameraDepth = 0.5f;
         [SerializeField] private float playWidth = 4.0f;
         [SerializeField] private float playHeight = 2.5f;
         [SerializeField] private float centerY = 1.0f;
@@ -105,13 +128,19 @@ namespace PunchAR.Hand3D
         [SerializeField] private float jointSmoothSpeed = 26f;
         [SerializeField] private bool hideHandsWhenLost = true;
 
-        [Header("3. Xoay cổ tay 3D & Độ nhạy gập ngón (Khép kín nắm đấm)")]
+        [Header("3. Xoay cổ tay 3D & Độ nhạy gập ngón")]
         [SerializeField] private bool enableWristRotation = true;
-        [SerializeField] private float fingerBendGain = 1.45f;      // Bù góc thiếu khi MediaPipe bị che đầu ngón
-        [SerializeField] private float mcpRestOffsetDeg = 0f;       // Giảm về 0 để nắm đấm không bị hở
-        [SerializeField] private float thumbCmcRestOffsetDeg = 10f; // Trừ nhẹ góc choãi tự nhiên của ngón cái
-        [SerializeField] private float maxJointBendDeg = 115f;
-        [SerializeField] private float fallbackFistBendDeg = 85f;
+        [Tooltip("Hệ số khuếch đại góc gập ngón tay (khuyên dùng 1.25)")]
+        [SerializeField] private float fingerBendGain = 1.25f;
+        [SerializeField] private float mcpRestOffsetDeg = 0f;
+        [SerializeField] private float thumbCmcRestOffsetDeg = 10f;
+        [Tooltip("Biên độ gập tối đa từng đốt 4 ngón: X=MCP (01), Y=PIP (02), Z=DIP (03)")]
+        [SerializeField] private Vector3 fingerMaxBendDeg = new Vector3(80f, 95f, 65f);
+        [Tooltip("Biên độ gập tối đa ngón cái: X=CMC (01), Y=MCP (02), Z=IP (03)")]
+        [SerializeField] private Vector3 thumbMaxBendDeg = new Vector3(35f, 45f, 55f);
+        [Range(0f, 1f)]
+        [Tooltip("Tỷ lệ gập khi nhận diện Closed_Fist mà không có 21 landmarks")]
+        [SerializeField] private float fallbackFistRatio = 0.9f;
 
         [Header("4. Hiệu ứng Lao Nắm Đấm (+Z)")]
         [SerializeField] private float punchLungeZ = 0.35f;
@@ -135,19 +164,19 @@ namespace PunchAR.Hand3D
         private void Awake()
         {
             _provider = providerSource as IHandInputProvider ?? GetComponent<IHandInputProvider>();
-            if (_provider == null)
+            if (_provider == null && Application.isPlaying)
             {
                 Debug.LogError("[Hand3DVisualizer] Chưa gắn UdpHandProvider!");
             }
 
-            // Tự động đảm bảo tay trái uốn gập đúng chiều (-1 do xương đối xứng Blender) nếu chưa được đặt âm
-            if (leftHandRig.fingerBendDirection > 0f)
+            // Tự động kiểm tra và dọn dẹp model con trùng lặp (LeftHand_FromRight)
+            CleanupDuplicateChildModels();
+
+            // Self-healing: Tự động chạy AutoMapBlenderBones nếu phát hiện slot xương bị null
+            if (leftHandRig.thumb[0] == null || rightHandRig.thumb[0] == null ||
+                leftHandRig.index[0] == null || rightHandRig.index[0] == null)
             {
-                leftHandRig.fingerBendDirection = -1f;
-            }
-            if (leftHandRig.thumbBendDirection > 0f)
-            {
-                leftHandRig.thumbBendDirection = -1f;
+                AutoMapBlenderBones();
             }
 
             leftHandRig.CacheInitialRotations("Left");
@@ -177,12 +206,12 @@ namespace PunchAR.Hand3D
         {
             if (enableManualCurlTest)
             {
-                ApplyTestCurl(leftHandRig, debugTestCurl * 90f);
-                ApplyTestCurl(rightHandRig, debugTestCurl * 90f);
+                ApplyTestCurl(leftHandRig, debugTestCurl);
+                ApplyTestCurl(rightHandRig, debugTestCurl);
                 return;
             }
 
-            if (_provider == null) return;
+            if (!Application.isPlaying || _provider == null) return;
 
             _leftLungeOffset = Mathf.Lerp(_leftLungeOffset, 0f, Time.deltaTime * lungeReturnSpeed);
             _rightLungeOffset = Mathf.Lerp(_rightLungeOffset, 0f, Time.deltaTime * lungeReturnSpeed);
@@ -191,17 +220,35 @@ namespace PunchAR.Hand3D
             UpdateHandVisual(_provider.RightHand, rightHandRig, isLeft: false, _rightLungeOffset);
         }
 
-        private void ApplyTestCurl(HandRigConfig rig, float deg)
+        private void ApplyTestCurl(HandRigConfig rig, float ratio)
         {
             if (rig == null || rig.root == null) return;
             if (!rig.root.gameObject.activeSelf) rig.root.gameObject.SetActive(true);
             if (!rig.isInitialized) rig.CacheInitialRotations("Test");
 
-            ApplyUniformAngle(rig.thumb, rig.thumbInitRot, deg * 0.65f, rig.thumbBendAxis, rig.thumbBendDirection);
-            ApplyUniformAngle(rig.index, rig.indexInitRot, deg, rig.fingerBendAxis, rig.fingerBendDirection);
-            ApplyUniformAngle(rig.middle, rig.middleInitRot, deg, rig.fingerBendAxis, rig.fingerBendDirection);
-            ApplyUniformAngle(rig.ring, rig.ringInitRot, deg, rig.fingerBendAxis, rig.fingerBendDirection);
-            ApplyUniformAngle(rig.pinky, rig.pinkyInitRot, deg, rig.fingerBendAxis, rig.fingerBendDirection);
+            float r = Mathf.Clamp01(ratio);
+
+            // Ngón cái 3 đốt: CMC (01), MCP (02), IP (03)
+            if (rig.thumb != null && rig.thumb.Length >= 3 && rig.thumbInitRot != null && rig.thumbInitRot.Length >= 3)
+            {
+                RotateBoneRelative(rig.thumb[0], rig.thumbInitRot[0], thumbMaxBendDeg.x * r, rig.thumbCmcBendAxis, rig.thumbCmcBendDirection);
+                RotateBoneRelative(rig.thumb[1], rig.thumbInitRot[1], thumbMaxBendDeg.y * r, rig.thumbBendAxis, rig.thumbBendDirection);
+                RotateBoneRelative(rig.thumb[2], rig.thumbInitRot[2], thumbMaxBendDeg.z * r, rig.thumbBendAxis, rig.thumbBendDirection);
+            }
+
+            // 4 ngón còn lại
+            ApplyFingerCurlRatio(rig.index, rig.indexInitRot, r, rig.fingerBendAxis, rig.fingerBendDirection);
+            ApplyFingerCurlRatio(rig.middle, rig.middleInitRot, r, rig.fingerBendAxis, rig.fingerBendDirection);
+            ApplyFingerCurlRatio(rig.ring, rig.ringInitRot, r, rig.fingerBendAxis, rig.fingerBendDirection);
+            ApplyFingerCurlRatio(rig.pinky, rig.pinkyInitRot, r, rig.fingerBendAxis, rig.fingerBendDirection);
+        }
+
+        private void ApplyFingerCurlRatio(Transform[] bones, Quaternion[] initRots, float r, Vector3 axis, float dir)
+        {
+            if (bones == null || initRots == null) return;
+            if (bones.Length > 0 && bones[0] != null) RotateBoneRelative(bones[0], initRots[0], fingerMaxBendDeg.x * r, axis, dir);
+            if (bones.Length > 1 && bones[1] != null) RotateBoneRelative(bones[1], initRots[1], fingerMaxBendDeg.y * r, axis, dir);
+            if (bones.Length > 2 && bones[2] != null) RotateBoneRelative(bones[2], initRots[2], fingerMaxBendDeg.z * r, axis, dir);
         }
 
         private void UpdateHandVisual(HandFrameData data, HandRigConfig rig, bool isLeft, float zOffset)
@@ -219,7 +266,7 @@ namespace PunchAR.Hand3D
 
             if (!rig.root.gameObject.activeSelf) rig.root.gameObject.SetActive(true);
 
-            // 1. Di chuyển vị trí bàn tay trên mặt phẳng Hit Plane
+            // 1. Di chuyển vị trí bàn tay trên mặt phẳng Hit Plane (có khóa biên an toàn)
             Vector3 targetPos = MapNormalizedToWorld(data.palmPos.x, data.palmPos.y, zOffset);
             rig.root.position = Vector3.Lerp(rig.root.position, targetPos, Time.deltaTime * positionSmoothSpeed);
 
@@ -245,12 +292,8 @@ namespace PunchAR.Hand3D
             }
             else
             {
-                float targetAngle = data.shape == "Closed_Fist" ? fallbackFistBendDeg : 0f;
-                ApplyUniformAngle(rig.thumb, rig.thumbInitRot, targetAngle * 0.65f, rig.thumbBendAxis, rig.thumbBendDirection);
-                ApplyUniformAngle(rig.index, rig.indexInitRot, targetAngle, rig.fingerBendAxis, rig.fingerBendDirection);
-                ApplyUniformAngle(rig.middle, rig.middleInitRot, targetAngle, rig.fingerBendAxis, rig.fingerBendDirection);
-                ApplyUniformAngle(rig.ring, rig.ringInitRot, targetAngle, rig.fingerBendAxis, rig.fingerBendDirection);
-                ApplyUniformAngle(rig.pinky, rig.pinkyInitRot, targetAngle, rig.fingerBendAxis, rig.fingerBendDirection);
+                float r = data.shape == "Closed_Fist" ? fallbackFistRatio : 0f;
+                ApplyTestCurl(rig, r);
             }
         }
 
@@ -267,9 +310,16 @@ namespace PunchAR.Hand3D
 
             if (handForward.sqrMagnitude > 0.0001f && palmNormal.sqrMagnitude > 0.0001f)
             {
-                // Căn chỉnh pháp tuyến lòng bàn tay theo +Z và trục ngón tay theo +Y (khớp với bind pose gốc)
-                Quaternion targetWorldRot = Quaternion.LookRotation(palmNormal, handForward)
+                // Ngón tay hướng về phía trước (+Z), mu bàn tay hướng lên (+Y)
+                Quaternion targetWorldRot = Quaternion.LookRotation(handForward, -palmNormal)
                                             * Quaternion.Euler(rig.wristRotationOffset);
+
+                // Đảm bảo Slerp luôn đi theo đường cung ngắn nhất, ngăn lật 180 độ giật cục
+                if (Quaternion.Dot(rig.root.rotation, targetWorldRot) < 0f)
+                {
+                    targetWorldRot = new Quaternion(-targetWorldRot.x, -targetWorldRot.y, -targetWorldRot.z, -targetWorldRot.w);
+                }
+
                 rig.root.rotation = Quaternion.Slerp(rig.root.rotation, targetWorldRot, Time.deltaTime * rotationSmoothSpeed);
             }
         }
@@ -284,12 +334,16 @@ namespace PunchAR.Hand3D
         {
             if (useCameraViewportMapping && Camera.main != null)
             {
-                float depth = Mathf.Max(0.4f, hitPlaneZ + zOffset);
-                return Camera.main.ViewportToWorldPoint(new Vector3(xUdp, yUdp, depth));
+                float clampedX = Mathf.Clamp(xUdp, viewportMargin.x, 1f - viewportMargin.x);
+                float clampedY = Mathf.Clamp(yUdp, viewportMargin.y, 1f - viewportMargin.y);
+                float depth = Mathf.Max(minCameraDepth, hitPlaneZ + zOffset);
+                return Camera.main.ViewportToWorldPoint(new Vector3(clampedX, clampedY, depth));
             }
 
-            float worldX = (xUdp - 0.5f) * playWidth;
-            float worldY = (yUdp - 0.5f) * playHeight + centerY;
+            float clampedNormX = Mathf.Clamp01(xUdp);
+            float clampedNormY = Mathf.Clamp01(yUdp);
+            float worldX = (clampedNormX - 0.5f) * playWidth;
+            float worldY = (clampedNormY - 0.5f) * playHeight + centerY;
             return new Vector3(worldX, worldY, hitPlaneZ + zOffset);
         }
 
@@ -303,11 +357,11 @@ namespace PunchAR.Hand3D
             Vector3 p3 = ToUnityHandSpace(lm[3]);
             Vector3 p4 = ToUnityHandSpace(lm[4]);
 
-            float a1 = CalcBendAngleDeg(p0, p1, p2, thumbCmcRestOffsetDeg);
-            float a2 = CalcBendAngleDeg(p1, p2, p3, 5f);
-            float a3 = CalcBendAngleDeg(p2, p3, p4, 3f);
+            float a1 = CalcBendAngleDeg(p0, p1, p2, thumbCmcRestOffsetDeg, thumbMaxBendDeg.x);
+            float a2 = CalcBendAngleDeg(p1, p2, p3, 5f, thumbMaxBendDeg.y);
+            float a3 = CalcBendAngleDeg(p2, p3, p4, 3f, thumbMaxBendDeg.z);
 
-            RotateBoneRelative(rig.thumb[0], rig.thumbInitRot[0], a1, rig.thumbBendAxis, rig.thumbBendDirection);
+            RotateBoneRelative(rig.thumb[0], rig.thumbInitRot[0], a1, rig.thumbCmcBendAxis, rig.thumbCmcBendDirection);
             RotateBoneRelative(rig.thumb[1], rig.thumbInitRot[1], a2, rig.thumbBendAxis, rig.thumbBendDirection);
             RotateBoneRelative(rig.thumb[2], rig.thumbInitRot[2], a3, rig.thumbBendAxis, rig.thumbBendDirection);
         }
@@ -324,23 +378,13 @@ namespace PunchAR.Hand3D
             Vector3 v3 = ToUnityHandSpace(lm[p3]);
             Vector3 v4 = ToUnityHandSpace(lm[p4]);
 
-            float a1 = CalcBendAngleDeg(v0, v1, v2, mcpRestOffsetDeg);
-            float a2 = CalcBendAngleDeg(v1, v2, v3, 2f);
-            float a3 = CalcBendAngleDeg(v2, v3, v4, 2f);
+            float a1 = CalcBendAngleDeg(v0, v1, v2, mcpRestOffsetDeg, fingerMaxBendDeg.x);
+            float a2 = CalcBendAngleDeg(v1, v2, v3, 2f, fingerMaxBendDeg.y);
+            float a3 = CalcBendAngleDeg(v2, v3, v4, 2f, fingerMaxBendDeg.z);
 
             RotateBoneRelative(bones[0], initRots[0], a1, axis, dir);
             RotateBoneRelative(bones[1], initRots[1], a2, axis, dir);
             RotateBoneRelative(bones[2], initRots[2], a3, axis, dir);
-        }
-
-        private void ApplyUniformAngle(
-            Transform[] bones, Quaternion[] initRots, float angleDeg, Vector3 axis, float dir)
-        {
-            if (bones == null) return;
-            for (int i = 0; i < Mathf.Min(3, bones.Length); i++)
-            {
-                RotateBoneRelative(bones[i], initRots[i], angleDeg, axis, dir);
-            }
         }
 
         private void RotateBoneRelative(
@@ -350,33 +394,184 @@ namespace PunchAR.Hand3D
             float clampedDir = Mathf.Sign(dir == 0f ? 1f : dir);
             Quaternion delta = Quaternion.AngleAxis(angleDeg * clampedDir, axis.normalized);
             Quaternion targetRot = initRot * delta;
-            bone.localRotation = Quaternion.Slerp(bone.localRotation, targetRot, Time.deltaTime * jointSmoothSpeed);
+            if (Application.isPlaying)
+            {
+                bone.localRotation = Quaternion.Slerp(bone.localRotation, targetRot, Time.deltaTime * jointSmoothSpeed);
+            }
+            else
+            {
+                bone.localRotation = targetRot;
+            }
         }
 
-        private float CalcBendAngleDeg(Vector3 a, Vector3 b, Vector3 c, float restOffsetDeg)
+        private float CalcBendAngleDeg(Vector3 a, Vector3 b, Vector3 c, float restOffsetDeg, float maxBendLimit)
         {
             Vector3 v1 = (a - b).normalized;
             Vector3 v2 = (c - b).normalized;
             float rawBend = 180f - Vector3.Angle(v1, v2);
             float adjusted = Mathf.Max(0f, rawBend - restOffsetDeg) * fingerBendGain;
-            return Mathf.Clamp(adjusted, 0f, maxJointBendDeg);
+            return Mathf.Clamp(adjusted, 0f, maxBendLimit);
+        }
+
+        [ContextMenu("Reset Bones to Flat Pose")]
+        public void ResetBonesToFlatPose()
+        {
+            enableManualCurlTest = false;
+            debugTestCurl = 0f;
+            ResetRigToRest(leftHandRig);
+            ResetRigToRest(rightHandRig);
+            Debug.Log("[Hand3DVisualizer] Đã reset toàn bộ khớp ngón tay 2 bàn tay về vị trí duỗi thẳng ban đầu.");
+        }
+
+        private void ResetRigToRest(HandRigConfig rig)
+        {
+            if (rig == null) return;
+            ResetChain(rig.thumb, rig.thumbInitRot);
+            ResetChain(rig.index, rig.indexInitRot);
+            ResetChain(rig.middle, rig.middleInitRot);
+            ResetChain(rig.ring, rig.ringInitRot);
+            ResetChain(rig.pinky, rig.pinkyInitRot);
+        }
+
+        private void ResetChain(Transform[] bones, Quaternion[] initRots)
+        {
+            if (bones == null || initRots == null) return;
+            for (int i = 0; i < Mathf.Min(bones.Length, initRots.Length); i++)
+            {
+                if (bones[i] != null && initRots[i] != Quaternion.identity)
+                {
+                    bones[i].localRotation = initRots[i];
+                }
+            }
+        }
+
+        [ContextMenu("Fix Hierarchy: Remove Duplicate Child Models")]
+        public void CleanupDuplicateChildModels()
+        {
+            CleanupRootChildren(leftHandRig.root, "LeftHand", "LeftHand_FromRight");
+            CleanupRootChildren(rightHandRig.root, "RightHand", null);
+        }
+
+        private void CleanupRootChildren(Transform root, string primaryModelName, string duplicateNamePattern)
+        {
+            if (root == null) return;
+            System.Collections.Generic.List<Transform> toRemove = new System.Collections.Generic.List<Transform>();
+            foreach (Transform child in root)
+            {
+                if (!string.IsNullOrEmpty(duplicateNamePattern) &&
+                    child.name.IndexOf(duplicateNamePattern, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    toRemove.Add(child);
+                }
+            }
+            foreach (var t in toRemove)
+            {
+                Debug.LogWarning($"[Hand3DVisualizer] Đã tự động xóa bỏ model con trùng lặp '{t.name}' dưới '{root.name}'.");
+                if (Application.isPlaying)
+                {
+                    Destroy(t.gameObject);
+                }
+                else
+                {
+#if UNITY_EDITOR
+                    DestroyImmediate(t.gameObject);
+#endif
+                }
+            }
+        }
+
+        [ContextMenu("Wipe Bone Transform Overrides & Revert to Clean Rest Pose")]
+        public void WipeBoneOverridesAndRevertToRestPose()
+        {
+            WipeRigBones(leftHandRig);
+            WipeRigBones(rightHandRig);
+            debugTestCurl = 0f;
+#if UNITY_EDITOR
+            UnityEditor.EditorUtility.SetDirty(gameObject);
+            if (!Application.isPlaying)
+            {
+                UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(gameObject.scene);
+            }
+#endif
+            Debug.Log("[Hand3DVisualizer] Đã xóa sạch mọi dirty override trên 30 đốt xương, đưa cả 2 bàn tay về thế mở phẳng (Flat Open Rest Pose).");
+        }
+
+        private void WipeRigBones(HandRigConfig rig)
+        {
+            if (rig == null) return;
+            WipeChain(rig.thumb);
+            WipeChain(rig.index);
+            WipeChain(rig.middle);
+            WipeChain(rig.ring);
+            WipeChain(rig.pinky);
+        }
+
+        private void WipeChain(Transform[] bones)
+        {
+            if (bones == null) return;
+            foreach (var b in bones)
+            {
+                if (b != null)
+                {
+#if UNITY_EDITOR
+                    UnityEditor.PrefabUtility.RevertPropertyOverride(
+                        new UnityEditor.SerializedObject(b).FindProperty("m_LocalRotation"),
+                        UnityEditor.InteractionMode.AutomatedAction
+                    );
+#endif
+                }
+            }
         }
 
         [ContextMenu("Auto-Map Blender Bones (.L / .R)")]
-        private void AutoMapBlenderBones()
+        public void AutoMapBlenderBones()
         {
             // Tự động nhận diện hậu tố .L hoặc .R
             MapRigAutoSuffix(leftHandRig, ".L", ".R");
             MapRigAutoSuffix(rightHandRig, ".R", ".L");
 
-            // Xương đối xứng qua trục X (Blender Symmetrize) có trục uốn gập cục bộ ngược chiều
-            // nên tay trái cần direction = -1 để uốn gập vào lòng bàn tay
+            // Thiết lập mặc định trục gập chuẩn theo số liệu đo đạc độc lập Blender CLI:
+            // TAY TRÁI (LeftHand):
+            // - 4 ngón dài: gập quanh Vector3.right theo chiều -1f
+            leftHandRig.fingerBendAxis = Vector3.right;
             leftHandRig.fingerBendDirection = -1f;
-            leftHandRig.thumbBendDirection = -1f;
+            // - Ngón cái CMC (.01): quét quanh Vector3.forward (Z) theo chiều +1f để quét ngang trước lòng bàn tay
+            leftHandRig.thumbCmcBendAxis = Vector3.forward;
+            leftHandRig.thumbCmcBendDirection = 1f;
+            // - Ngón cái MCP/IP (.02, .03): gập đầu ngón quanh Vector3.right theo chiều +1f ôm vào nắm đấm
+            leftHandRig.thumbBendAxis = Vector3.right;
+            leftHandRig.thumbBendDirection = 1f;
+
+            // TAY PHẢI (RightHand):
+            // - 4 ngón dài: gập quanh Vector3.right theo chiều +1f
+            rightHandRig.fingerBendAxis = Vector3.right;
             rightHandRig.fingerBendDirection = 1f;
+            // - Ngón cái CMC (.01): quét quanh Vector3.forward (Z) theo chiều -1f để quét ngang trước lòng bàn tay
+            rightHandRig.thumbCmcBendAxis = Vector3.forward;
+            rightHandRig.thumbCmcBendDirection = -1f;
+            // - Ngón cái MCP/IP (.02, .03): gập đầu ngón quanh Vector3.right theo chiều +1f ôm vào nắm đấm
+            rightHandRig.thumbBendAxis = Vector3.right;
             rightHandRig.thumbBendDirection = 1f;
 
-            Debug.Log("[Hand3DVisualizer] Đã tự động ánh xạ xong 30 đốt xương và cài đặt đúng chiều uốn (Left: -1, Right: 1).");
+            // Căn chỉnh góc xoay mô hình con để hai tay cùng hướng về phía trước (+Z)
+            AlignChildModelRotation(leftHandRig.root, "LeftHand", new Vector3(0f, -90f, -90f));
+            AlignChildModelRotation(rightHandRig.root, "RightHand", new Vector3(0f, -90f, -90f));
+
+            Debug.Log("[Hand3DVisualizer] Đã tự động ánh xạ 30 đốt xương và cài đặt trục gập chuẩn: 4 ngón (L=-1, R=+1), CMC (L=+1, R=-1 quanh Z), MCP/IP (+1 quanh X).");
+        }
+
+        private void AlignChildModelRotation(Transform root, string modelName, Vector3 targetEuler)
+        {
+            if (root == null) return;
+            foreach (Transform child in root)
+            {
+                if (child.name.IndexOf(modelName, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    child.localEulerAngles = targetEuler;
+                    Debug.Log($"[Hand3DVisualizer] Đã tự động đặt góc xoay mô hình '{child.name}' về {targetEuler}.");
+                    return;
+                }
+            }
         }
 
         private void MapRigAutoSuffix(HandRigConfig rig, string primarySuffix, string fallbackSuffix)

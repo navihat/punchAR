@@ -188,8 +188,10 @@ MonoBehaviour:
     - {fileID: 238129042602728789}
     - {fileID: 8756501095813077490}
     fingerBendAxis: {x: 1, y: 0, z: 0}
-    fingerBendDirection: 1
-    thumbBendAxis: {x: 0, y: 0, z: 1}
+    fingerBendDirection: -1
+    thumbCmcBendAxis: {x: 0, y: 0, z: 1}
+    thumbCmcBendDirection: 1
+    thumbBendAxis: {x: 1, y: 0, z: 0}
     thumbBendDirection: 1
     wristRotationOffset: {x: 0, y: 0, z: 0}
   rightHandRig:
@@ -216,7 +218,9 @@ MonoBehaviour:
     - {fileID: 2718039689825122087}
     fingerBendAxis: {x: 1, y: 0, z: 0}
     fingerBendDirection: 1
-    thumbBendAxis: {x: 0, y: 0, z: 1}
+    thumbCmcBendAxis: {x: 0, y: 0, z: 1}
+    thumbCmcBendDirection: -1
+    thumbBendAxis: {x: 1, y: 0, z: 0}
     thumbBendDirection: 1
     wristRotationOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &3572143543165082559
@@ -327,139 +331,139 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8421373126249006522}
     m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_LocalScale.x
       value: 5
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0
+      value: 5
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_LocalScale.z
-      value: -5
+      value: 5
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.5
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_LocalRotation.x
       value: 0.5
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_LocalRotation.y
       value: -0.5
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_LocalRotation.z
       value: -0.5
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: -90
       objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -8679921383154817045, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: -90
       objectReference: {fileID: 0}
-    - target: {fileID: -8337849060171222723, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -8337849060171222723, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: finger_index.01.L
       objectReference: {fileID: 0}
-    - target: {fileID: -8150813506794544715, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -8150813506794544715, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: palm.04.L
       objectReference: {fileID: 0}
-    - target: {fileID: -7388486761992585995, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -7388486761992585995, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: finger_ring.02.L
       objectReference: {fileID: 0}
-    - target: {fileID: -7106001491109522802, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -7106001491109522802, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: finger_pinky.03.L
       objectReference: {fileID: 0}
-    - target: {fileID: -6405238468474837291, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -6405238468474837291, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: thumb.02.L
       objectReference: {fileID: 0}
-    - target: {fileID: -5817779016899209796, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -5817779016899209796, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: palm.01.L
       objectReference: {fileID: 0}
-    - target: {fileID: -5598485373222174082, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -5598485373222174082, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: finger_middle.01.L
       objectReference: {fileID: 0}
-    - target: {fileID: -4938906329650981147, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -4938906329650981147, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: palm.02.L
       objectReference: {fileID: 0}
-    - target: {fileID: -4902061596641203558, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -4902061596641203558, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: thumb.01.L
       objectReference: {fileID: 0}
-    - target: {fileID: -4756279897226471271, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -4756279897226471271, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: finger_ring.03.L
       objectReference: {fileID: 0}
-    - target: {fileID: -2838722945653046289, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -2838722945653046289, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: finger_middle.02.L
       objectReference: {fileID: 0}
-    - target: {fileID: -1431350743725158897, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -1431350743725158897, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: palm.03.L
       objectReference: {fileID: 0}
-    - target: {fileID: -822122013034992384, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: -822122013034992384, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: finger_index.02.L
       objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: 919132149155446097, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
-      value: LeftHand_FromRight
+      value: LeftHand
       objectReference: {fileID: 0}
-    - target: {fileID: 1523499764300380751, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: 1523499764300380751, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: finger_pinky.02.L
       objectReference: {fileID: 0}
-    - target: {fileID: 3169562356522673805, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: 3169562356522673805, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: finger_index.03.L
       objectReference: {fileID: 0}
-    - target: {fileID: 3326907309806299134, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: 3326907309806299134, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: finger_middle.03.L
       objectReference: {fileID: 0}
-    - target: {fileID: 5826821855385602484, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: 5826821855385602484, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: thumb.03.L
       objectReference: {fileID: 0}
-    - target: {fileID: 6158594426398711286, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: 6158594426398711286, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: hand.L
       objectReference: {fileID: 0}
-    - target: {fileID: 6962004869717734089, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: 6962004869717734089, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: finger_ring.01.L
       objectReference: {fileID: 0}
-    - target: {fileID: 8417978526923301076, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+    - target: {fileID: 8417978526923301076, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
       propertyPath: m_Name
       value: finger_pinky.01.L
       objectReference: {fileID: 0}
@@ -467,7 +471,7 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
+  m_SourcePrefab: {fileID: 100100000, guid: 830bd2077985f9f43acff6dfb711952e, type: 3}
 --- !u!4 &40509003161921636 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a7d8b54368a096e43957834e77ee162b, type: 3}
