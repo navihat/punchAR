@@ -63,3 +63,4 @@ results/
 # Gesture dataset raw images (stored on Google Drive per gitflow.md)
 python/data/dataset_images/
 
+.worktrees/
