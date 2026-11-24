@@ -36,6 +36,11 @@ namespace PunchAR.Hand3D
             if (udpReceiver == null)
             {
                 udpReceiver = FindFirstObjectByType<UdpReceiver>();
+                if (udpReceiver == null)
+                {
+                    udpReceiver = gameObject.AddComponent<UdpReceiver>();
+                    Debug.Log("[UdpHandProvider] Tự động bổ sung UdpReceiver vào GameObject để kết nối UDP cổng 5005 (Self-Healing).");
+                }
             }
         }
 
@@ -44,6 +49,11 @@ namespace PunchAR.Hand3D
             if (udpReceiver == null)
             {
                 udpReceiver = FindFirstObjectByType<UdpReceiver>();
+                if (udpReceiver == null)
+                {
+                    udpReceiver = gameObject.AddComponent<UdpReceiver>();
+                    Debug.Log("[UdpHandProvider] Tự động bổ sung UdpReceiver vào GameObject để kết nối UDP cổng 5005 (Self-Healing).");
+                }
             }
             if (udpReceiver != null)
             {
