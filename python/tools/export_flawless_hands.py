@@ -153,10 +153,93 @@ def export_flawless_hands():
     for v in mesh.data.vertices:
         v.co += offset_R
 
+    # BƯỚC A1: Dồn 100% weight của forearm và các xương cha/ngoài target vào hand.R
+    vg_hand_R = mesh.vertex_groups.get('hand.R')
+    if not vg_hand_R:
+        vg_hand_R = mesh.vertex_groups.new(name='hand.R')
+
+    non_target_indices = {vg.index for vg in mesh.vertex_groups if vg.name not in target_bones_R}
+    hand_group_idx = vg_hand_R.index
+
+    for v in mesh.data.vertices:
+        add_to_hand = 0.0
+        current_hand_w = 0.0
+        for g in v.groups:
+            if g.group == hand_group_idx:
+                current_hand_w = g.weight
+            elif g.group in non_target_indices:
+                add_to_hand += g.weight
+        if add_to_hand > 0:
+            vg_hand_R.add([v.index], current_hand_w + add_to_hand, 'REPLACE')
+
     # Xóa các Vertex Group của các xương đã bị xóa
     for vg in list(mesh.vertex_groups):
         if vg.name not in target_bones_R:
             mesh.vertex_groups.remove(vg)
+
+    # BƯỚC A2: Lọc bỏ trọng số nhiễu (< 0.02)
+    for v in mesh.data.vertices:
+        for g in list(v.groups):
+            if g.weight < 0.02:
+                mesh.vertex_groups[g.group].remove([v.index])
+
+    # BƯỚC A3: Khóa cứng vùng cổ tay: Xóa triệt để mọi weight xương ngón dính nhầm ở cổ tay
+    # Wrist head ở (0, 0, 0), vành cẳng tay ở X <= 0, các khớp ngón MCP ở X >= 0.068
+    wrist_head_pos = Vector((0.0, 0.0, 0.0))
+    vg_map = {vg.index: vg for vg in mesh.vertex_groups}
+    vg_names = {vg.index: vg.name for vg in mesh.vertex_groups}
+
+    for v in mesh.data.vertices:
+        dist_wrist = (v.co - wrist_head_pos).length
+        # 1. Toàn bộ vành mép cẳng tay và gốc cổ tay (X <= 0.005): Khóa cứng 100% vào hand.R
+        if v.co.x <= 0.005:
+            for g in list(v.groups):
+                gname = vg_names.get(g.group, "")
+                if gname != 'hand.R':
+                    mesh.vertex_groups[g.group].remove([v.index])
+            vg_hand_R.add([v.index], 1.0, 'REPLACE')
+        else:
+            # 2. Xóa triệt để trọng số của 4 ngón dài (index, middle, ring, pinky) ở vùng bàn tay/cổ tay (X < 0.050)
+            # Khớp MCP của 4 ngón dài đều ở X >= 0.068m, nên mọi weight ngón dài ở X < 0.050 đều là nhiễu
+            if v.co.x < 0.050:
+                for g in list(v.groups):
+                    gname = vg_names.get(g.group, "")
+                    if gname.startswith("finger_"):
+                        mesh.vertex_groups[g.group].remove([v.index])
+
+            # 3. Với ngón cái: Chuyển tiếp mượt mà (smooth fade) từ gốc cổ tay ra mô cái
+            # Dưới 3.5cm: 0% weight ngón cái (khóa cứng hoàn toàn cổ tay)
+            # Từ 3.5cm đến 0.045m: Fading mượt mà tránh giật nấc co giãn cạnh
+            if dist_wrist < 0.045:
+                factor = max(0.0, min(1.0, (dist_wrist - 0.035) / 0.010))
+                for g in list(v.groups):
+                    gname = vg_names.get(g.group, "")
+                    if gname.startswith("thumb."):
+                        if factor == 0.0:
+                            mesh.vertex_groups[g.group].remove([v.index])
+                        else:
+                            mesh.vertex_groups[g.group].add([v.index], g.weight * factor, 'REPLACE')
+
+    # BƯỚC A4: Giới hạn tối đa 4 xương & Chuẩn hóa toàn bộ (normalize_all, sum = 1.0)
+    for v in mesh.data.vertices:
+        valid_groups = [(g.group, g.weight) for g in v.groups if g.group in vg_map]
+        if not valid_groups:
+            # Nếu đỉnh mất hết weight (ví dụ 57 đỉnh mép cẳng tay), gán 1.0 vào hand.R
+            mesh.vertex_groups['hand.R'].add([v.index], 1.0, 'REPLACE')
+            continue
+
+        # Giữ tối đa 4 xương ảnh hưởng lớn nhất
+        if len(valid_groups) > 4:
+            valid_groups.sort(key=lambda x: x[1], reverse=True)
+            for grp, _ in valid_groups[4:]:
+                mesh.vertex_groups[grp].remove([v.index])
+            valid_groups = valid_groups[:4]
+
+        # Chuẩn hóa tổng trọng số về đúng 1.0
+        total_w = sum(w for _, w in valid_groups)
+        if total_w > 0:
+            for grp, w in valid_groups:
+                mesh.vertex_groups[grp].add([v.index], w / total_w, 'REPLACE')
 
     # Gắn lại Skinning
     mesh.parent = arm

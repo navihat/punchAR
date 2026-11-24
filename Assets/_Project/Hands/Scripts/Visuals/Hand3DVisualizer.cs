@@ -179,6 +179,10 @@ namespace PunchAR.Hand3D
                 AutoMapBlenderBones();
             }
 
+            // Đồng bộ góc xoay mô hình con để ngón tay hướng +Z (Root) và mu bàn tay hướng +Y (Root)
+            AlignChildModelRotation(leftHandRig.root, "LeftHand", new Vector3(0f, -90f, 0f));
+            AlignChildModelRotation(rightHandRig.root, "RightHand", new Vector3(0f, -90f, 180f));
+
             leftHandRig.CacheInitialRotations("Left");
             rightHandRig.CacheInitialRotations("Right");
         }
@@ -326,8 +330,9 @@ namespace PunchAR.Hand3D
 
         public static Vector3 ToUnityHandSpace(Vector3 p)
         {
-            // UdpHandProvider đã đảo trục Y; trục Z của MediaPipe cùng chiều +Z Unity nên giữ nguyên dấu
-            return new Vector3(p.x, p.y, p.z);
+            // MediaPipe quy ước Z càng nhỏ càng gần camera; trong Unity thế giới AR, khối bay về camera,
+            // đấm thẳng tới khối là hướng +Z, do đó đảo dấu Z (-p.z).
+            return new Vector3(p.x, p.y, -p.z);
         }
 
         public Vector3 MapNormalizedToWorld(float xUdp, float yUdp, float zOffset = 0f)
@@ -553,9 +558,9 @@ namespace PunchAR.Hand3D
             rightHandRig.thumbBendAxis = Vector3.right;
             rightHandRig.thumbBendDirection = 1f;
 
-            // Căn chỉnh góc xoay mô hình con để hai tay cùng hướng về phía trước (+Z)
-            AlignChildModelRotation(leftHandRig.root, "LeftHand", new Vector3(0f, -90f, -90f));
-            AlignChildModelRotation(rightHandRig.root, "RightHand", new Vector3(0f, -90f, -90f));
+            // Căn chỉnh góc xoay mô hình con để ngón tay hướng +Z (Root) và mu bàn tay hướng +Y (Root)
+            AlignChildModelRotation(leftHandRig.root, "LeftHand", new Vector3(0f, -90f, 0f));
+            AlignChildModelRotation(rightHandRig.root, "RightHand", new Vector3(0f, -90f, 180f));
 
             Debug.Log("[Hand3DVisualizer] Đã tự động ánh xạ 30 đốt xương và cài đặt trục gập chuẩn: 4 ngón (L=-1, R=+1), CMC (L=+1, R=-1 quanh Z), MCP/IP (+1 quanh X).");
         }

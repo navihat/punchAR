@@ -96,11 +96,14 @@ namespace PunchAR.Hand3D
             float scale = Mathf.Max(1f, (Screen.height / 1080f) * hudScale);
             GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(scale, scale, 1f));
 
-            GUI.Box(new Rect(12, 12, 430, 145), "PunchAR — Hand 3D Debug HUD (F1 to Toggle)");
-            GUI.Label(new Rect(24, 38, 410, 22), $"Unity FPS: {_fpsSmoothed:F1} | UDP Rate: {_provider.PacketsPerSecond:F1} pkt/s | Latency: {_provider.LastLatencyMs} ms");
-            GUI.Label(new Rect(24, 62, 410, 22), FormatHandLine("LEFT ", _provider.LeftHand));
-            GUI.Label(new Rect(24, 86, 410, 22), FormatHandLine("RIGHT", _provider.RightHand));
-            GUI.Label(new Rect(24, 112, 410, 22), $"Last Strike: {_lastStrikeText}");
+            float boxWidth = 430f;
+            float boxX = (Screen.width / scale) - boxWidth - 16f;
+
+            GUI.Box(new Rect(boxX, 16f, boxWidth, 145f), "PunchAR — Hand 3D Debug HUD (F1 to Toggle)");
+            GUI.Label(new Rect(boxX + 12f, 42f, 410f, 22f), $"Unity FPS: {_fpsSmoothed:F1} | UDP Rate: {_provider.PacketsPerSecond:F1} pkt/s | Latency: {_provider.LastLatencyMs} ms");
+            GUI.Label(new Rect(boxX + 12f, 66f, 410f, 22f), FormatHandLine("LEFT ", _provider.LeftHand));
+            GUI.Label(new Rect(boxX + 12f, 90f, 410f, 22f), FormatHandLine("RIGHT", _provider.RightHand));
+            GUI.Label(new Rect(boxX + 12f, 116f, 410f, 22f), $"Last Strike: {_lastStrikeText}");
 
             GUI.matrix = oldMatrix;
         }
