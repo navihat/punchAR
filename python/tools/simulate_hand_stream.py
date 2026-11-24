@@ -1,4 +1,4 @@
-"""
+﻿"""
 simulate_hand_stream.py
 -----------------------
 Công cụ giả lập luồng dữ liệu UDP (Port 5005) gửi tới Unity:
