@@ -1,7 +1,7 @@
 # All tunable values. Times are in ms.
 
 [capture]
-camera = 0
+camera = 0    # Default webcam index. For laptops with IR camera at index 0, pass `--camera 1` via CLI.
 width = 1280
 height = 720
 fps = 30
@@ -15,12 +15,22 @@ presence_conf = 0.5
 track_conf = 0.5
 
 [decision]
-# TODO [TBD]: tune with recorded videos
-min_shape_score = 0.6
-punch_size_growth = 0.25    # relative hand-size increase within window
+# Tuned with recorded videos & gesture dataset
+min_shape_score = 0.60
+window_ms = 120
 punch_window_ms = 150
-cooldown_ms = 300
-lost_grace_ms = 100         # tolerate brief tracking loss during a punch
+cooldown_ms = 250
+block_hold_ms = 120
+blur_grace_ms = 60
+lost_grace_ms = 300
+punch_size_growth = 0.15     # relative hand-size increase within window
+punch_min_vel_scale = 1.30
+palm_min_scale_gain = 0.12
+palm_min_vel_scale = 0.90
+palm_min_r_open = 1.48
+fist_max_r_open = 1.28
+block_max_planar_vel = 0.85
+block_max_scale_vel = 0.65
 
 [transport]
 host = "127.0.0.1"

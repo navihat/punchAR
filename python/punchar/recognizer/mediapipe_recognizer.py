@@ -84,9 +84,12 @@ class MediaPipeRecognizer(Recognizer):
         hands = []
         for i, lms in enumerate(result.hand_landmarks):
             shape, score = top_gesture(result, i)
-            # TODO: verify MediaPipe handedness convention on mirrored frames
+            # Mirrored frame correction: camera.py flips horizontally, so MediaPipe handedness
+            # is inverted relative to player's perspective (Rule 8 in AGENTS.md)
+            raw_hand = result.handedness[i][0].category_name
+            handedness = "Right" if raw_hand == "Left" else "Left"
             hands.append(HandResult(
-                handedness=result.handedness[i][0].category_name,
+                handedness=handedness,
                 shape=shape,
                 score=score,
                 landmarks=[(lm.x, lm.y, lm.z) for lm in lms],

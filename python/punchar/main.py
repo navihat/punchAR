@@ -17,8 +17,11 @@ from punchar.transport import UdpSender
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--config", default=CONFIG_PATH)
+    parser.add_argument("--camera", type=int, default=None, help="Camera index override (e.g. 0, 1, 2)")
     args = parser.parse_args()
     cfg = load_config(args.config)
+    if args.camera is not None:
+        cfg["capture"]["camera"] = args.camera
 
     camera = Camera(**cfg["capture"]).start()
     recognizer = create_from_config(cfg)
@@ -42,6 +45,8 @@ def main():
                 sender.send_pose(result)
                 for ev in events:
                     sender.send_strike(ev)
+                for side in getattr(decision, "lost_hands", []):
+                    sender.send_hand_lost(result.timestamp_ms, side)
             timer.add("since_capture", time.time_ns() / 1e6 - frame.timestamp_ms)
     except KeyboardInterrupt:
         pass

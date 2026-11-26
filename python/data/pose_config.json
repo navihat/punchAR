@@ -1,0 +1,110 @@
+{
+  "metadata": {
+    "updated_at": "2026-11-21 09:49:53",
+    "storage_format": "NPZ + JSON Hybrid (Pose + Kinematics + Images)"
+  },
+  "thresholds": {
+    "min_mp_confidence": 0.7,
+    "min_pose_confidence_pct": 68.0,
+    "min_total_confidence_pct": 70.0,
+    "shape_sigma": 0.2,
+    "window_ms": 120,
+    "blur_grace_ms": 60,
+    "cooldown_ms": 250,
+    "block_hold_ms": 120,
+    "punch_min_vel_scale": 1.3,
+    "punch_min_scale_gain": 0.15,
+    "palm_min_vel_scale": 0.9,
+    "palm_min_scale_gain": 0.12,
+    "block_max_planar_vel": 0.85,
+    "block_max_scale_vel": 0.65,
+    "palm_min_r_open": 1.48,
+    "fist_max_r_open": 1.28,
+    "udp_host": "127.0.0.1",
+    "udp_port": 5005
+  },
+  "templates_summary": {
+    "Left": {
+      "PUNCH_STRAIGHT": {
+        "num_samples": 50,
+        "mean_hand_size": 0.1652,
+        "std_hand_size": 0.0546,
+        "mean_r_open": 0.3916,
+        "std_r_open": 0.1029,
+        "pos_box": [
+          0.2653,
+          0.0513,
+          0.3776,
+          0.4227
+        ]
+      },
+      "OPEN_PALM": {
+        "num_samples": 50,
+        "mean_hand_size": 0.3203,
+        "std_hand_size": 0.0497,
+        "mean_r_open": 1.7758,
+        "std_r_open": 0.0572,
+        "pos_box": [
+          0.2576,
+          0.3603,
+          0.3374,
+          0.5413
+        ]
+      },
+      "BLOCK": {
+        "num_samples": 49,
+        "mean_hand_size": 0.2131,
+        "std_hand_size": 0.0058,
+        "mean_r_open": 0.5838,
+        "std_r_open": 0.0342,
+        "pos_box": [
+          0.3871,
+          0.3329,
+          0.4537,
+          0.3855
+        ]
+      }
+    },
+    "Right": {
+      "PUNCH_STRAIGHT": {
+        "num_samples": 50,
+        "mean_hand_size": 0.281,
+        "std_hand_size": 0.0767,
+        "mean_r_open": 0.3643,
+        "std_r_open": 0.0391,
+        "pos_box": [
+          0.5743,
+          0.0331,
+          0.7092,
+          0.3371
+        ]
+      },
+      "OPEN_PALM": {
+        "num_samples": 50,
+        "mean_hand_size": 0.292,
+        "std_hand_size": 0.0501,
+        "mean_r_open": 1.8507,
+        "std_r_open": 0.0552,
+        "pos_box": [
+          0.637,
+          0.4158,
+          0.6781,
+          0.5576
+        ]
+      },
+      "BLOCK": {
+        "num_samples": 50,
+        "mean_hand_size": 0.2125,
+        "std_hand_size": 0.0093,
+        "mean_r_open": 0.5535,
+        "std_r_open": 0.035,
+        "pos_box": [
+          0.5863,
+          0.341,
+          0.6033,
+          0.404
+        ]
+      }
+    }
+  }
+}
