@@ -35,3 +35,12 @@ block_max_scale_vel = 0.65
 [transport]
 host = "127.0.0.1"
 port = 5005
+
+[video]
+# Webcam image -> Unity (AR background), JPEG over UDP, one frame per datagram
+enabled = true
+host = "127.0.0.1"
+port = 5006
+width = 640
+height = 360
+quality = 80

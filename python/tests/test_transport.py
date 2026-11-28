@@ -56,3 +56,27 @@ def test_hand_lost(link):
     tx, recv = link
     tx.send_hand_lost(7, "Right")
     assert recv() == {"type": "hand_lost", "t": 7, "hand": "Right"}
+
+
+def test_video_frame():
+    import cv2
+    import numpy as np
+
+    from punchar.transport import FrameSender
+    from punchar.transport.frame_sender import HEADER
+
+    rx = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    rx.bind(("127.0.0.1", 0))
+    rx.settimeout(1)
+    tx = FrameSender("127.0.0.1", rx.getsockname()[1], width=640, height=360, quality=80)
+    img = np.zeros((720, 1280, 3), np.uint8)
+    img[:, :640] = (0, 0, 255)  # left half red (BGR): checks the image is not flipped again
+    tx.submit(img, 7, 1795072926644)
+    packet = rx.recv(65535)
+    tx.close()
+    rx.close()
+
+    assert HEADER.unpack_from(packet) == (7, 1795072926644)
+    out = cv2.imdecode(np.frombuffer(packet[HEADER.size:], np.uint8), cv2.IMREAD_COLOR)
+    assert out.shape == (360, 640, 3)
+    assert out[180, 100, 2] > 200 and out[180, 540, 2] < 50
