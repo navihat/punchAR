@@ -180,8 +180,8 @@ namespace PunchAR.Hand3D
             }
 
             // Đồng bộ góc xoay mô hình con để ngón tay hướng +Z (Root) và mu bàn tay hướng +Y (Root)
-            AlignChildModelRotation(leftHandRig.root, "LeftHand", new Vector3(0f, -90f, 0f));
-            AlignChildModelRotation(rightHandRig.root, "RightHand", new Vector3(0f, -90f, 180f));
+            AlignChildModelRotation(leftHandRig.root, "LeftHand", LeftModelEuler);
+            AlignChildModelRotation(rightHandRig.root, "RightHand", RightModelEuler);
 
             leftHandRig.CacheInitialRotations("Left");
             rightHandRig.CacheInitialRotations("Right");
@@ -559,11 +559,17 @@ namespace PunchAR.Hand3D
             rightHandRig.thumbBendDirection = 1f;
 
             // Căn chỉnh góc xoay mô hình con để ngón tay hướng +Z (Root) và mu bàn tay hướng +Y (Root)
-            AlignChildModelRotation(leftHandRig.root, "LeftHand", new Vector3(0f, -90f, 0f));
-            AlignChildModelRotation(rightHandRig.root, "RightHand", new Vector3(0f, -90f, 180f));
+            AlignChildModelRotation(leftHandRig.root, "LeftHand", LeftModelEuler);
+            AlignChildModelRotation(rightHandRig.root, "RightHand", RightModelEuler);
 
             Debug.Log("[Hand3DVisualizer] Đã tự động ánh xạ 30 đốt xương và cài đặt trục gập chuẩn: 4 ngón (L=-1, R=+1), CMC (L=+1, R=-1 quanh Z), MCP/IP (+1 quanh X).");
         }
+
+        // LeftHand.fbx là ảnh gương của RightHand.fbx qua trục X, nên góc tay trái = góc tay phải lật gương qua X:
+        // R_trái = N · R_phải · N (N = lật X) -> Euler (0, -90, 180) thành (0, 90, 180).
+        // Góc cũ (0, -90, 0) cho ngón tay đúng hướng nhưng lật 180° quanh trục ngón (lòng/mu bàn tay bị đảo).
+        private static readonly Vector3 RightModelEuler = new Vector3(0f, -90f, 180f);
+        private static readonly Vector3 LeftModelEuler = new Vector3(0f, 90f, 180f);
 
         private void AlignChildModelRotation(Transform root, string modelName, Vector3 targetEuler)
         {
@@ -572,6 +578,9 @@ namespace PunchAR.Hand3D
             {
                 if (child.name.IndexOf(modelName, StringComparison.OrdinalIgnoreCase) >= 0)
                 {
+                    // Cổ tay (xương hand.L / hand.R) nằm ở gốc FBX: đặt model trùng gốc Root để xoay quanh cổ tay.
+                    // Prefab đang lưu LeftHand ở x = -1 (sót từ bản FBX cũ chưa căn giữa), làm tay trái lệch và văng vòng khi xoay.
+                    child.localPosition = Vector3.zero;
                     child.localEulerAngles = targetEuler;
                     Debug.Log($"[Hand3DVisualizer] Đã tự động đặt góc xoay mô hình '{child.name}' về {targetEuler}.");
                     return;
