@@ -11,7 +11,7 @@ from punchar.decision import DecisionLogic
 from punchar.metrics import StageTimer
 from punchar.paths import CONFIG_PATH
 from punchar.recognizer import create_from_config
-from punchar.transport import UdpSender
+from punchar.transport import FrameSender, UdpSender
 
 
 def main():
@@ -29,8 +29,10 @@ def main():
     decision = DecisionLogic(cfg["decision"])
     sender = UdpSender(**cfg["transport"])
     timer = StageTimer()
+    vcfg = dict(cfg.get("video", {}))
+    video = FrameSender(timer=timer, **vcfg) if vcfg.pop("enabled", False) else None
 
-    print(f"Sending to {sender.addr}. Ctrl+C to stop.")
+    print(f"Sending to {sender.addr}" + (f", video to {video.addr}" if video else "") + ". Ctrl+C to stop.")
     try:
         while True:
             frame = camera.read()
@@ -47,6 +49,8 @@ def main():
                     sender.send_strike(ev)
                 for side in getattr(decision, "lost_hands", []):
                     sender.send_hand_lost(result.timestamp_ms, side)
+                if video:  # after pose, so the background frame matches the hand pose
+                    video.submit(frame.image, frame.frame_id, frame.timestamp_ms)
             timer.add("since_capture", time.time_ns() / 1e6 - frame.timestamp_ms)
     except KeyboardInterrupt:
         pass
@@ -54,6 +58,8 @@ def main():
         camera.stop()
         recognizer.close()
         sender.close()
+        if video:
+            video.close()
         print(timer.summary())
 
 
