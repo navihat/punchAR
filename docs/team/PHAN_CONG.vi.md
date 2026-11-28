@@ -135,6 +135,18 @@ Gửi **một lần** khi một tay vắng mặt liên tục lâu hơn `lost_gra
 
 `t` là thời điểm chụp frame **cuối cùng còn thấy tay**.
 
+#### Kênh ảnh webcam (nền AR): bản thử 28/11/2026 (Thái), chưa chốt
+
+Python giữ camera nên Unity không mở trực tiếp được; Python gửi luôn ảnh sang. Kênh riêng, không ảnh hưởng 3 tin JSON ở trên.
+
+| Mục | Quy ước |
+|---|---|
+| Đường truyền | UDP tới `127.0.0.1:5006` (`[video]` trong `config/default.toml`), Python → Unity. Mỗi frame **một gói**, mất gói thì bỏ qua |
+| Gói tin | 12 byte đầu (little-endian): `int32 frame`, `int64 t`; phần còn lại là ảnh **JPEG** |
+| `frame`, `t` | Giống hệt tin `pose` của cùng frame. Python gửi ảnh **sau** tin `pose`, để nền và tay 3D cùng một frame |
+| Ảnh | 640×360, chất lượng 80, **đã lật gương** (như toạ độ `x, y`). Unity hiện nguyên, phủ toàn màn hình nên `x, y` của `pose` khớp với ảnh |
+| Code | `python/punchar/transport/frame_sender.py` ↔ `Assets/_Project/AR/WebcamBackground.cs` |
+
 #### Code theo hợp đồng
 
 | File | Thay đổi | Ai |
